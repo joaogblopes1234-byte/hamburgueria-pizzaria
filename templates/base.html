@@ -32,7 +32,6 @@
         <nav>
             <ul>
                 <li><a href="{{ url_for('index') }}">Início</a></li>
-                <li><a href="{{ url_for('menu') }}">Cardápio</a></li>
                 <li><a href="#contato">Contato</a></li>
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <li><a href="/admin">Painel Administrativo</a></li>
@@ -95,7 +94,6 @@
                 <div class="footer-section">
                     <h4>Links Rápidos</h4>
                     <a href="{{ url_for('index') }}">Início</a>
-                    <a href="{{ url_for('menu') }}">Cardápio</a>
                     <a href="{{ url_for('cart') }}">Carrinho</a>
                 </div>
                 <div class="footer-section">

@@ -105,8 +105,8 @@ admin.add_view(NeighborhoodView(Neighborhood, db.session, name='Taxas de Entrega
 @app.route('/')
 def index():
     categories = Category.query.all()
-    featured_products = Product.query.filter_by(is_available=True).limit(8).all()
-    return render_template('index.html', categories=categories, products=featured_products)
+    all_products = Product.query.filter_by(is_available=True).all()
+    return render_template('index.html', categories=categories, products=all_products)
 
 @app.route('/menu')
 def menu():
