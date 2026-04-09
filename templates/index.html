@@ -44,7 +44,7 @@
 
     <h2 class="section-title">Cardápio do dia</h2>
     <div id="product-groups">
-        {% set category_order = ['Combos', 'Hambúrguer', 'Pizza', 'Bebidas'] %}
+        {% set category_order = ['Hambúrguer', 'Combos', 'Pizzas (Grande)', 'Pizzas (Média)', 'Pizzas (Pequena)', 'Pizzas Doces (Brotinho)', 'Bordas Recheadas', 'Bebidas'] %}
         {% for cat_name in category_order %}
             {% set cat_products = products | selectattr('category.name', 'equalto', cat_name) | list %}
             {% if cat_products %}

@@ -182,10 +182,14 @@ def init_db():
     if not Category.query.first():
         # Categorias
         hamburguer = Category(name='Hambúrguer')
-        pizza      = Category(name='Pizza')
+        pizza_g    = Category(name='Pizzas (Grande)')
+        pizza_m    = Category(name='Pizzas (Média)')
+        pizza_p    = Category(name='Pizzas (Pequena)')
+        pizza_doce = Category(name='Pizzas Doces (Brotinho)')
+        bordas     = Category(name='Bordas Recheadas')
         combos     = Category(name='Combos')
         bebidas    = Category(name='Bebidas')
-        db.session.add_all([hamburguer, pizza, combos, bebidas])
+        db.session.add_all([hamburguer, pizza_g, pizza_m, pizza_p, pizza_doce, bordas, combos, bebidas])
         db.session.flush()  # gera os IDs antes de criar os produtos
 
         # Bairros
@@ -227,23 +231,44 @@ def init_db():
             Product(name='X-Gordin',              description='Pão, 3 bifes, 2 mussarelas, 2 presuntos, 2 ovos, bacon, cheddar, catupiry, milho, batata palha, alface e tomate.', price=31.00, category=hamburguer, is_available=True, image_url='https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400'),
         ])
 
-        # Produtos de exemplo — Pizzas
+        # Produtos de exemplo — Pizzas Tradicionais e Doces
+        traditional_flavors = [
+            ('Frango c/catupiry', 'Molho de tomate, mussarela, frango, catupiry, milho, palmito, azeitona, mussarela e orégano.', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400'),
+            ('Frango c/cheddar', 'Molho de tomate, mussarela, frango, palmito, azeitona, cheddar, e orégano.', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400'),
+            ('Portuguesa', 'Molho de tomate, mussarela, presunto, bacon, palmito, ovo cozido, tomate, azeitona, cebola e orégano.', 'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=400'),
+            ('Calabresa', 'Molho de tomate, mussarela, calabresa, cebola, pimentão e orégano.', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
+            ('Bacon c/cheddar', 'Molho de tomate, mussarela, bacon, cheddar, cebola e orégano.', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
+            ('A moda da casa', 'Molho de tomate, mussarela, bacon, frango, calabresa, palmito, cebola, pimentão, azeitona, milho, catupiry e orégano.', 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400'),
+            ('Vegetariana', 'Molho de tomate, mussarela, palmito, milho, tomate, cebola, pimentão, azeitona e orégano.', 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400'),
+            ('Milho c/catupiry', 'Molho de tomate, mussarela, milho, catupiry e orégano.', 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400'),
+        ]
+        for name, desc, img in traditional_flavors:
+            db.session.add(Product(name=f"{name} (Grande)", description=desc, price=64.90, category=pizza_g, is_available=True, image_url=img))
+            db.session.add(Product(name=f"{name} (Média)", description=desc, price=54.90, category=pizza_m, is_available=True, image_url=img))
+            db.session.add(Product(name=f"{name} (Pequena)", description=desc, price=44.90, category=pizza_p, is_available=True, image_url=img))
+
+        # Pizzas Doces
         db.session.add_all([
-            Product(name='Pizza Calabresa',        description='Molho de tomate, calabresa fatiada e cebola roxa.',             price=42.90, category=pizza, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
-            Product(name='Pizza Mussarela',        description='Molho de tomate, mussarela derretida e manjericão fresco.',     price=39.90, category=pizza, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400'),
-            Product(name='Pizza Frango c/ Catupiry',description='Frango desfiado, catupiry cremoso e milho verde.',             price=46.90, category=pizza, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400'),
-            Product(name='Pizza Portuguesa',       description='Presunto, ovos, mussarela, azeitona e cebola.',                price=44.90, category=pizza, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=400'),
+            Product(name='Chocolate', description='Chocolate ao leite derretido, granulado.', price=35.90, category=pizza_doce, is_available=True, image_url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
+            Product(name='Banana Nevada', description='Banana em rodelas, açúcar, canela, mussarela, leite condensado, chocolate branco.', price=35.90, category=pizza_doce, is_available=True, image_url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
+            Product(name='Romeu e Julieta', description='Queijo mussarela, goiabada derretida.', price=35.90, category=pizza_doce, is_available=True, image_url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
+            Product(name='Beijinho', description='Creme de ninho, coco ralado, bombom de beijinho.', price=44.90, category=pizza_doce, is_available=True, image_url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
+            Product(name='Nutella c/ morango', description='Nutella, morango.', price=44.90, category=pizza_doce, is_available=True, image_url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
+        ])
+        
+        # Bordas
+        db.session.add_all([
+            Product(name='Borda de Catupiry', description='Adicional de Borda recheada - Catupiry.', price=15.00, category=bordas, is_available=True, image_url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
+            Product(name='Borda de Cheddar', description='Adicional de Borda recheada - Cheddar.', price=20.00, category=bordas, is_available=True, image_url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
+            Product(name='Borda de Chocolate', description='Adicional de Borda recheada - Chocolate.', price=20.00, category=bordas, is_available=True, image_url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
         ])
 
         # Produtos de exemplo — Bebidas
         db.session.add_all([
             Product(name='Refri Mini',              description='Lata ou mini pet bem gelada.', price=3.00,  category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400'),
-            Product(name='Refri 1 L',               description='Garrafa de 1 litro.', price=8.00,  category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'),
-            Product(name='Kuat 2 L',                description='Garrafa de 2 litros do Guaraná Kuat.', price=10.00, category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1581098365948-6a5a912b7a49?w=400'),
+            Product(name='Refrigerante 1L',         description='Garrafa de 1 litro.', price=8.00,  category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'),
+            Product(name='Kuat 2L',                 description='Garrafa de 2 litros do Guaraná Kuat.', price=10.00, category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1581098365948-6a5a912b7a49?w=400'),
+            Product(name='Fanta 2L',                description='Fanta Laranja 2 Litros.', price=14.00, category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400'),
             Product(name='Coca 2 L',                description='Garrafa família de 2 litros gelada.', price=16.00, category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'),
         ])
 
