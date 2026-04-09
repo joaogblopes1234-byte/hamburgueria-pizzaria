@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Início - Gordin Lanches{% endblock %}
+
+{% block content %}
+<section class="header-banner">
+    <div class="banner-text">
+        <h1>GORDIN LANCHES</h1>
+        <p>Pizzaria e Hamburgueria</p>
+    </div>
+</section>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="logo-box">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Gordin Lanches Logo">
+        </div>
+        <div class="info-content">
+            <h2>Gordin Lanches</h2>
+            <div class="info-bar">
+                <span class="status-open">Aberto agora</span>
+                <span>•</span>
+                <span><i class="fas fa-clock"></i> 18:00 às 23:00</span>
+                <span>•</span>
+                <span><i class="fas fa-map-marker-alt"></i> João Monlevade - MG</span>
+                <span>•</span>
+                <a href="javascript:void(0)" onclick="openInfoModal()" style="color: var(--primary); font-weight: 500;">Mais informações</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-search-bar">
+        <select class="category-dropdown" onchange="filterByCategory(this.value)">
+            <option value="all">Lista de categorias</option>
+            {% for category in categories %}
+            <option value="{{ category.name }}">{{ category.name }}</option>
+            {% endfor %}
+        </select>
+        <div class="search-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="product-search" class="search-input" placeholder="Busque por um produto" onkeyup="searchProducts()">
+        </div>
+    </div>
+
+    <h2 class="section-title">Cardápio do dia</h2>
+    <div id="product-groups">
+        {% set category_order = ['Combos', 'Hambúrguer', 'Pizza', 'Bebidas'] %}
+        {% for cat_name in category_order %}
+            {% set cat_products = products | selectattr('category.name', 'equalto', cat_name) | list %}
+            {% if cat_products %}
+            <div class="category-group" data-category-group="{{ cat_name }}" style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; border-left: 4px solid var(--primary); padding-left: 10px; color: var(--dark); font-size: 1.5rem;">
+                    {{ cat_name if cat_name != 'Hambúrguer' else 'Hambúrgueres' }}
+                </h3>
+                <div class="product-grid">
+                    {% for product in cat_products %}
+                    <div class="product-card" data-category="{{ product.category.name }}">
+                        <img src="{{ product.image_url or '/static/img/placeholder.jpg' }}" alt="{{ product.name }}" class="product-image">
+                        <div class="product-info">
+                            <h3>{{ product.name }}</h3>
+                            <p>{{ product.description }}</p>
+                            <div class="product-price">R$ {{ "%.2f"|format(product.price) }}</div>
+                        </div>
+                        <button class="add-to-cart" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url or '/static/img/placeholder.jpg' }}')">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function searchProducts() {
+        const query = document.getElementById('product-search').value.toLowerCase();
+        const groups = document.querySelectorAll('.category-group');
+        
+        groups.forEach(group => {
+            const cards = group.querySelectorAll('.product-card');
+            let hasVisibleCard = false;
+            
+            cards.forEach(card => {
+                const name = card.querySelector('h3').innerText.toLowerCase();
+                const description = card.querySelector('p').innerText.toLowerCase();
+                
+                if (name.includes(query) || description.includes(query)) {
+                    card.style.display = 'flex';
+                    hasVisibleCard = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            group.style.display = hasVisibleCard ? 'block' : 'none';
+        });
+    }
+
+    function filterByCategory(category) {
+        const groups = document.querySelectorAll('.category-group');
+        
+        groups.forEach(group => {
+            if (category === 'all' || group.getAttribute('data-category-group') === category) {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

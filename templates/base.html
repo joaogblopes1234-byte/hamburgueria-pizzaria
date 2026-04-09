@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gordin Lanches - Hambúrguer e Pizza{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            {% if request.path != url_for('index') %}
+            <a href="javascript:history.back()" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            {% endif %}
+            <a href="{{ url_for('index') }}" class="logo">
+                Gordin <span>Lanches</span>
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Início</a></li>
+                <li><a href="{{ url_for('menu') }}">Cardápio</a></li>
+                <li><a href="#contato">Contato</a></li>
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <li><a href="/admin">Painel Administrativo</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="nav-icons">
+            {% if current_user.is_authenticated %}
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="color: white; font-size: 0.9rem; font-weight: 500;">Olá, {{ current_user.username }}</span>
+                    <a href="{{ url_for('logout') }}" title="Sair" style="color: white; text-decoration: none;"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="nav-icon-link">
+                    <i class="fas fa-user"></i>
+                    <span>Entrar / Cadastrar</span>
+                </a>
+            {% endif %}
+            <a href="{{ url_for('cart') }}" class="nav-icon-link cart-icon">
+                <div style="position: relative;">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count" class="cart-count">0</span>
+                </div>
+                <span>Meu Carrinho</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="container" style="margin-top: 2rem;">
+              {% for message in messages %}
+                <div style="background: var(--accent); color: white; padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <a href="https://wa.me/553173524487" class="whatsapp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <footer id="contato">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Gordin Lanches</h4>
+                    <p>O melhor hambúrguer e pizza de João Monlevade - MG.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Links Rápidos</h4>
+                    <a href="{{ url_for('index') }}">Início</a>
+                    <a href="{{ url_for('menu') }}">Cardápio</a>
+                    <a href="{{ url_for('cart') }}">Carrinho</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contato</h4>
+                    <p><i class="fas fa-phone"></i> (31) 7352-4487</p>
+                    <p><i class="fas fa-map-marker-alt"></i> João Monlevade - MG</p>
+                    <div style="margin-top: 1rem; border-radius: 10px; overflow: hidden; height: 150px;">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15015.68412613444!2d-43.1736181!3d-19.81156885!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa38bab2e74241d%3A0x6a0c0b16a0a0a0a0!2sJo%C3%A3o%20Monlevade%2C%20MG!5e0!3m2!1spt-BR!2sbr!4v1712610000000!5m2!1spt-BR!2sbr" width="100%" height="150" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 Gordin Lanches. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Info Modal -->
+    <div id="info-modal" class="modal-overlay" onclick="closeModalOnOutsideClick(event)">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Gordin Lanches</h3>
+                <button class="close-modal" onclick="closeInfoModal()"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="modal-tabs">
+                <button class="modal-tab-btn active" onclick="switchTab(event, 'tab-sobre')">Sobre</button>
+                <button class="modal-tab-btn" onclick="switchTab(event, 'tab-horario')">Horário</button>
+                <button class="modal-tab-btn" onclick="switchTab(event, 'tab-pagamento')">Pagamento</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Tab: Sobre -->
+                <div id="tab-sobre" class="tab-content active">
+                    <a href="https://instagram.com/goordinlanches" target="_blank" class="instagram-link">
+                        <i class="fab fa-instagram"></i>
+                        @goordinlanches
+                    </a>
+                    
+                    <div class="info-section">
+                        <h4>Contato</h4>
+                        <div class="contact-pill-box">
+                            <a href="https://wa.me/553173524487" class="contact-pill">
+                                <i class="fab fa-whatsapp"></i> (31) 7352-4487
+                            </a>
+                            <a href="tel:+553173524487" class="contact-pill">
+                                <i class="fas fa-phone"></i> (31) 7352-4487
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h4>Endereço</h4>
+                        <p class="address-text">
+                            <strong>Rua São Francisco, 30</strong><br>
+                            Ernestina Gracina, João Monlevade - MG
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tab: Horário -->
+                <div id="tab-horario" class="tab-content">
+                    <div class="info-section">
+                        <h4>Horários de Funcionamento</h4>
+                        <div class="schedule-row closed"><span>Segunda-feira</span> <span>Fechado</span></div>
+                        <div class="schedule-row"><span>Terça-feira</span> <span>18:00 às 23:00</span></div>
+                        <div class="schedule-row closed"><span>Quarta-feira</span> <span>Fechado</span></div>
+                        <div class="schedule-row"><span>Quinta-feira</span> <span>18:00 às 23:00</span></div>
+                        <div class="schedule-row"><span>Sexta-feira</span> <span>18:00 às 23:00</span></div>
+                        <div class="schedule-row"><span>Sábado</span> <span>18:00 às 23:00</span></div>
+                        <div class="schedule-row"><span>Domingo</span> <span>18:00 às 23:00</span></div>
+                    </div>
+                </div>
+
+                <!-- Tab: Pagamento -->
+                <div id="tab-pagamento" class="tab-content">
+                    <div class="info-section">
+                        <h4>Formas de Pagamento</h4>
+                        <div class="payment-method"><i class="fas fa-qrcode"></i> Pix</div>
+                        <div class="payment-method"><i class="fas fa-credit-card"></i> Cartão de Crédito</div>
+                        <div class="payment-method"><i class="fas fa-credit-card"></i> Cartão de Débito</div>
+                        <div class="payment-method"><i class="fas fa-money-bill-wave"></i> Dinheiro</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+    <script>
+        function openInfoModal() {
+            document.getElementById('info-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeInfoModal() {
+            document.getElementById('info-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function closeModalOnOutsideClick(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                closeInfoModal();
+            }
+        }
+
+        function switchTab(event, tabId) {
+            // Hide all tab content
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Deactivate all tab buttons
+            const tabButtons = document.querySelectorAll('.modal-tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Show current tab and activate button
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

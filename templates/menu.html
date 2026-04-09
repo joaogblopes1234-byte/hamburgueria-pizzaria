@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Cardápio - Gordin Lanches{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem;">
+    <h1 class="section-title">Nosso Cardápio</h1>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 3rem; flex-wrap: wrap;">
+        <button class="btn btn-primary filter-btn active" data-category="all">Todos</button>
+        <button class="btn btn-primary filter-btn" data-category="Combos">Combos</button>
+        <button class="btn btn-primary filter-btn" data-category="Hambúrguer">Hambúrgueres</button>
+        <button class="btn btn-primary filter-btn" data-category="Pizza">Pizzas</button>
+        <button class="btn btn-primary filter-btn" data-category="Bebidas">Bebidas</button>
+    </div>
+
+    <div id="menu-sections">
+        {% set category_order = ['Combos', 'Hambúrguer', 'Pizza', 'Bebidas'] %}
+        {% for cat_name in category_order %}
+            {% set cat_products = products | selectattr('category.name', 'equalto', cat_name) | list %}
+            {% if cat_products %}
+            <div class="menu-category-section" data-category-section="{{ cat_name }}" style="margin-bottom: 3rem;">
+                <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; display: inline-block;">
+                    {{ cat_name if cat_name != 'Hambúrguer' else 'Hambúrgueres' }}
+                </h2>
+                <div class="product-grid">
+                    {% for product in cat_products %}
+                    <div class="product-card" data-category="{{ product.category.name }}">
+                        <img src="{{ product.image_url or '/static/img/placeholder.jpg' }}" alt="{{ product.name }}" class="product-image">
+                        <div class="product-info">
+                            <h3>{{ product.name }}</h3>
+                            <p>{{ product.description }}</p>
+                            <div class="product-price">R$ {{ "%.2f"|format(product.price) }}</div>
+                        </div>
+                        <button class="add-to-cart" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url or '/static/img/placeholder.jpg' }}')">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.filter-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const category = button.getAttribute('data-category');
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            document.querySelectorAll('.menu-category-section').forEach(section => {
+                if (category === 'all' || section.getAttribute('data-category-section') === category) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+<style>
+    .filter-btn {
+        background: #eee;
+        color: var(--dark);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .filter-btn.active {
+        background: var(--primary);
+        color: white;
+    }
+</style>
+{% endblock %}

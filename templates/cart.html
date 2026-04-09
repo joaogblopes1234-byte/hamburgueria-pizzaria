@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Meu Carrinho - Gordin Lanches{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; max-width: 900px;">
+    <h1 class="section-title">Meu Carrinho</h1>
+    
+    <div id="cart-items">
+        <!-- Rendered by JS -->
+    </div>
+
+    <div id="cart-summary" style="display: none; background: white; padding: 2.5rem; border-radius: 20px; box-shadow: var(--shadow); margin-bottom: 4rem;">
+        <h3 style="margin-bottom: 1.5rem; border-bottom: 2px solid var(--light); padding-bottom: 0.5rem;">Resumo do Pedido</h3>
+        
+        <div style="margin-bottom: 2rem;">
+            <div class="form-group">
+                <label for="neighborhood">Selecione seu Bairro</label>
+                <select id="neighborhood" class="form-input">
+                    <option value="" disabled selected>Escolha um bairro...</option>
+                    {% for n in neighborhoods %}
+                    <option value="{{ n.id }}" data-fee="{{ n.delivery_fee }}">{{ n.name }} (R$ {{ "%.2f"|format(n.delivery_fee) }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Endereço Completo</label>
+                <input type="text" id="address" class="form-input" placeholder="Rua, número, complemento...">
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between;">
+                <span>Subtotal:</span>
+                <span id="subtotal">R$ 0.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Taxa de Entrega:</span>
+                <span id="delivery-fee">R$ 0.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-top: 1rem; border-top: 2px solid var(--light); padding-top: 1rem;">
+                <span>TOTAL:</span>
+                <span id="total">R$ 0.00</span>
+            </div>
+        </div>
+
+        <button onclick="checkout()" class="btn btn-primary" style="width: 100%; font-size: 1.2rem;">Finalizar no WhatsApp <i class="fab fa-whatsapp"></i></button>
+    </div>
+</div>
+{% endblock %}
