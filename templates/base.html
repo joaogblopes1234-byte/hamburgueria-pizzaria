@@ -17,7 +17,16 @@
             </a>
             {% endif %}
             <a href="{{ url_for('index') }}" class="logo">
-                Gordin <span>Lanches</span>
+                <img src="{{ url_for('static', filename='img/logo.png') }}"
+                     alt="Gordin Lanches Logo"
+                     style="width: 52px; height: 52px; border-radius: 50%;
+                            border: 2px solid #b8731a;
+                            box-shadow: 0 0 8px rgba(184,115,26,0.6);
+                            object-fit: cover; flex-shrink: 0;">
+                <span style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <span style="font-size: 1.15rem; font-weight: 800; letter-spacing: 1px;">Gordin</span>
+                    <span style="font-size: 1.15rem; font-weight: 800; letter-spacing: 1px; color: #e63946;">Lanches</span>
+                </span>
             </a>
         </div>
         <nav>
