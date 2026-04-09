@@ -10,12 +10,10 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
-    orders = db.relationship('Order', backref='customer', lazy=True)
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    products = db.relationship('Product', backref='category', lazy=True)
 
     def __repr__(self):
         return self.name
@@ -27,6 +25,7 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     image_url = db.Column(db.String(200))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
+    category = db.relationship('Category', backref='products')
     is_available = db.Column(db.Boolean, default=True)
 
 class Neighborhood(db.Model):
@@ -46,6 +45,8 @@ class Order(db.Model):
     delivery_fee = db.Column(db.Float, nullable=False)
     address = db.Column(db.String(255), nullable=False)
     neighborhood_id = db.Column(db.Integer, db.ForeignKey('neighborhood.id'), nullable=False)
+    neighborhood = db.relationship('Neighborhood', backref='orders')
+    user = db.relationship('User', backref='orders')
     items = db.relationship('OrderItem', backref='order', lazy=True)
 
 class OrderItem(db.Model):
