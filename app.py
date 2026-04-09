@@ -195,6 +195,16 @@ def init_db():
             Neighborhood(name='Loanda',          delivery_fee=6.0),
             Neighborhood(name='Cruzeiro Celeste',delivery_fee=8.0),
             Neighborhood(name='Belmonte',        delivery_fee=6.5),
+            Neighborhood(name='Satélite',        delivery_fee=7.0),
+            Neighborhood(name='Boa Vista',       delivery_fee=7.0),
+            Neighborhood(name='Nova Esperança',  delivery_fee=7.0),
+            Neighborhood(name='Sion',            delivery_fee=7.0),
+            Neighborhood(name='José Elói',       delivery_fee=7.0),
+            Neighborhood(name='República',       delivery_fee=7.0),
+            Neighborhood(name='Vila Afonso',     delivery_fee=7.0),
+            Neighborhood(name='Vila 7 de Setembro', delivery_fee=7.0),
+            Neighborhood(name='Vila Lopes',      delivery_fee=7.0),
+            Neighborhood(name='Areia Preta',     delivery_fee=7.0),
         ])
 
         # Usuário admin
