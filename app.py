@@ -31,7 +31,12 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # Base Admin View
+# Base Admin View
 class AdminModelView(ModelView):
+    can_export = True
+    can_view_details = True
+    page_size = 50
+    
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
     
@@ -41,10 +46,15 @@ class AdminModelView(ModelView):
 # Specific views with Portuguese labels
 class UserView(AdminModelView):
     column_labels = {'username': 'Nome de Usuário', 'email': 'E-mail', 'is_admin': 'Administrador'}
-    column_list = ['username', 'email', 'is_admin']
+    column_list = ['id', 'username', 'email', 'is_admin']
+    column_searchable_list = ['username', 'email']
+    column_filters = ['is_admin']
+    column_editable_list = ['is_admin']
 
 class CategoryView(AdminModelView):
     column_labels = {'name': 'Nome da Categoria'}
+    column_list = ['id', 'name']
+    column_searchable_list = ['name']
 
 class ProductView(AdminModelView):
     column_labels = {
@@ -55,32 +65,44 @@ class ProductView(AdminModelView):
         'is_available': 'Disponível no Site',
         'category': 'Categoria'
     }
+    column_list = ['id', 'name', 'category', 'price', 'is_available']
+    column_searchable_list = ['name', 'description']
+    column_filters = ['category.name', 'is_available', 'price']
+    column_editable_list = ['price', 'is_available']
 
 class NeighborhoodView(AdminModelView):
     column_labels = {'name': 'Bairro', 'delivery_fee': 'Taxa de Entrega (R$)'}
+    column_list = ['id', 'name', 'delivery_fee']
+    column_searchable_list = ['name']
+    column_editable_list = ['delivery_fee']
 
 class OrderView(AdminModelView):
     column_labels = {
         'user': 'Cliente',
-        'total_price': 'Valor Total',
+        'total_price': 'Valor Total (R$)',
         'status': 'Status do Pedido',
         'address': 'Endereço de Entrega',
-        'created_at': 'Data e Hora'
+        'date_ordered': 'Data e Hora',
+        'neighborhood': 'Bairro'
     }
-    column_list = ['id', 'user', 'total_price', 'status', 'created_at']
+    column_list = ['id', 'user', 'total_price', 'status', 'date_ordered']
+    column_searchable_list = ['address', 'status']
+    column_filters = ['status', 'date_ordered', 'total_price']
+    column_editable_list = ['status']
+    column_default_sort = ('date_ordered', True)
 
 from flask_admin.menu import MenuLink
 
 # Admin Initialization
-admin = Admin(app, name='Painel Gordin Lanches', theme=Bootstrap4Theme())
+admin = Admin(app, name='Painel de Gestão', theme=Bootstrap4Theme())
 admin.add_link(MenuLink(name='Voltar ao Site', category='', url='/'))
 
 # Adding localized views
-admin.add_view(UserView(User, db.session, name='Usuários'))
-admin.add_view(CategoryView(Category, db.session, name='Categorias'))
-admin.add_view(ProductView(Product, db.session, name='Produtos'))
-admin.add_view(NeighborhoodView(Neighborhood, db.session, name='Bairros e Entrega'))
-admin.add_view(OrderView(Order, db.session, name='Pedidos'))
+admin.add_view(OrderView(Order, db.session, name='📦 Pedidos'))
+admin.add_view(CategoryView(Category, db.session, name='Categorias', category='🍔 Catálogo'))
+admin.add_view(ProductView(Product, db.session, name='Produtos', category='🍔 Catálogo'))
+admin.add_view(UserView(User, db.session, name='Usuários', category='⚙️ Configurações'))
+admin.add_view(NeighborhoodView(Neighborhood, db.session, name='Taxas de Entrega', category='⚙️ Configurações'))
 
 # Routes
 @app.route('/')
@@ -104,7 +126,7 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
             return redirect(url_for('index'))
-        flash('Email ou senha invlidos.')
+        flash('Email ou senha inválidos.')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -116,7 +138,12 @@ def register():
         
         user_exists = User.query.filter_by(email=email).first()
         if user_exists:
-            flash('Email j cadastrado.')
+            flash('Email já cadastrado.')
+            return redirect(url_for('register'))
+            
+        username_exists = User.query.filter_by(username=username).first()
+        if username_exists:
+            flash('Nome de usuário já está em uso. Por favor, escolha outro.')
             return redirect(url_for('register'))
         
         new_user = User(
