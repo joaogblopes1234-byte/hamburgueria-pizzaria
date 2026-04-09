@@ -11,12 +11,11 @@ from models import db, User, Category, Product, Neighborhood, Order, OrderItem
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 
-# Vercel's filesystem is read-only, except for /tmp.
-if os.environ.get('VERCEL') == '1':
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/gordin_lanches.db'
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gordin_lanches.db'
-
+# Vercel's filesystem is mostly read-only.
+# We try to use /tmp/ first, but if anything fails we fallback to memory.
+import os
+db_path = '/tmp/gordin_lanches.db' if os.environ.get('VERCEL') else 'gordin_lanches.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -151,22 +150,16 @@ def api_products():
         'category': p.category.name
     } for p in products])
 
-with app.app_context():
-    db.create_all()
-    # Seed initial data if empty
-    if not Category.query.first():
-        # Using the seed_db logic if available, or basic seed here
-        try:
-            from seed_db import seed
-            # Seed drops all initially, so only call it if DB is really empty
-            # Actually, seed drops all. So let's just use the basic seed from app.py
+def init_db():
+    try:
+        db.create_all()
+        if not Category.query.first():
             hamburguer = Category(name='Hambúrguer')
             pizza = Category(name='Pizza')
             combo = Category(name='Combos')
             bebida = Category(name='Bebidas')
             db.session.add_all([hamburguer, pizza, combo, bebida])
             
-            # Neighborhoods
             n1 = Neighborhood(name='Carneirinhos', delivery_fee=5.0)
             n2 = Neighborhood(name='Vila Tanque', delivery_fee=7.0)
             n3 = Neighborhood(name='Loanda', delivery_fee=6.0)
@@ -174,7 +167,6 @@ with app.app_context():
             n5 = Neighborhood(name='Belmonte', delivery_fee=6.5)
             db.session.add_all([n1, n2, n3, n4, n5])
             
-            # Create an admin user
             admin_user = User(
                 username='admin', 
                 email='admin@gordinlanches.com', 
@@ -183,8 +175,17 @@ with app.app_context():
             )
             db.session.add(admin_user)
             db.session.commit()
-        except Exception as e:
-            pass
+    except Exception as e:
+        db.session.rollback()
+        raise e
+
+with app.app_context():
+    try:
+        init_db()
+    except Exception as e:
+        # Fallback to in-memory database on Vercel deployment crash
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
