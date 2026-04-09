@@ -184,25 +184,73 @@ def api_products():
 def init_db():
     db.create_all()
     if not Category.query.first():
+        # Categorias
+        hamburguer = Category(name='Hambúrguer')
+        pizza      = Category(name='Pizza')
+        combos     = Category(name='Combos')
+        bebidas    = Category(name='Bebidas')
+        db.session.add_all([hamburguer, pizza, combos, bebidas])
+        db.session.flush()  # gera os IDs antes de criar os produtos
+
+        # Bairros
         db.session.add_all([
-            Category(name='Hambúrguer'),
-            Category(name='Pizza'),
-            Category(name='Combos'),
-            Category(name='Bebidas'),
+            Neighborhood(name='Carneirinhos',    delivery_fee=5.0),
+            Neighborhood(name='Vila Tanque',     delivery_fee=7.0),
+            Neighborhood(name='Loanda',          delivery_fee=6.0),
+            Neighborhood(name='Cruzeiro Celeste',delivery_fee=8.0),
+            Neighborhood(name='Belmonte',        delivery_fee=6.5),
         ])
-        db.session.add_all([
-            Neighborhood(name='Carneirinhos', delivery_fee=5.0),
-            Neighborhood(name='Vila Tanque', delivery_fee=7.0),
-            Neighborhood(name='Loanda', delivery_fee=6.0),
-            Neighborhood(name='Cruzeiro Celeste', delivery_fee=8.0),
-            Neighborhood(name='Belmonte', delivery_fee=6.5),
-        ])
+
+        # Usuário admin
         db.session.add(User(
             username='admin',
             email='admin@gordinlanches.com',
             password_hash=generate_password_hash('admin123', method='pbkdf2:sha256'),
             is_admin=True
         ))
+
+        # Produtos de exemplo — Hambúrgueres
+        db.session.add_all([
+            Product(name='X-Burguer Clássico',    description='Hambúrguer artesanal, queijo cheddar, alface e tomate.',         price=22.90, category=hamburguer, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400'),
+            Product(name='X-Bacon Duplo',          description='Dois burgers, bacon crocante, queijo e molho especial.',         price=32.90, category=hamburguer, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400'),
+            Product(name='Smash Burger',           description='Burger prensado na chapa, caramelizado e super saboroso.',       price=28.90, category=hamburguer, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400'),
+            Product(name='Frango Crispy',          description='Filé de frango empanado, alface americana e maionese.',         price=24.90, category=hamburguer, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400'),
+        ])
+
+        # Produtos de exemplo — Pizzas
+        db.session.add_all([
+            Product(name='Pizza Calabresa',        description='Molho de tomate, calabresa fatiada e cebola roxa.',             price=42.90, category=pizza, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400'),
+            Product(name='Pizza Mussarela',        description='Molho de tomate, mussarela derretida e manjericão fresco.',     price=39.90, category=pizza, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400'),
+            Product(name='Pizza Frango c/ Catupiry',description='Frango desfiado, catupiry cremoso e milho verde.',             price=46.90, category=pizza, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400'),
+            Product(name='Pizza Portuguesa',       description='Presunto, ovos, mussarela, azeitona e cebola.',                price=44.90, category=pizza, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=400'),
+        ])
+
+        # Produtos de exemplo — Bebidas
+        db.session.add_all([
+            Product(name='Coca-Cola Lata 350ml',   description='Gelada e refrescante.',                                        price=6.00,  category=bebidas, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400'),
+            Product(name='Suco de Laranja Natural',description='Laranja espremida na hora, sem conservantes.',                price=10.00, category=bebidas, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400'),
+            Product(name='Água Mineral 500ml',     description='Água gelada sem gás.',                                        price=4.00,  category=bebidas, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1564419320461-6870880221ad?w=400'),
+        ])
+
+        # Produtos de exemplo — Combos
+        db.session.add_all([
+            Product(name='Combo X-Burguer + Fritas + Refri', description='X-Burguer clássico + porção de fritas + refrigerante lata.', price=34.90, category=combos, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400'),
+            Product(name='Combo Família Pizza Grande',       description='1 Pizza grande + 2 refrigerantes lata.',                     price=69.90, category=combos, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=400'),
+        ])
+
         db.session.commit()
 
 with app.app_context():
