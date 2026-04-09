@@ -9,13 +9,13 @@ from flask_admin.theme import Bootstrap4Theme
 from models import db, User, Category, Product, Neighborhood, Order, OrderItem
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(24)
+# Fix: Static secret key to prevent session loss on Vercel environment
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'gordin_lanches_secreto_super_seguro_2026')
 
-# Vercel's filesystem is completely locked down.
-# We MUST use an in-memory database to prevent 500 crashes on boot.
-import os
+# Vercel's filesystem is completely locked down EXCEPT for the /tmp folder.
+# We MUST use /tmp to prevent 500 crashes on boot while keeping the app functional.
 if os.environ.get('VERCEL'):
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/gordin_lanches.db'
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gordin_lanches.db'
 
@@ -207,9 +207,10 @@ def init_db():
             db.session.commit()
     except Exception as e:
         db.session.rollback()
-        raise e
+        print(f"Erro na inicialização do banco: {e}")
 
 with app.app_context():
+    # Inicializa o banco de dados e suprime falhas fatais que derrubem o boot da Vercel
     init_db()
 
 if __name__ == '__main__':
