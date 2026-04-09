@@ -61,15 +61,59 @@
                             <p>{{ product.description }}</p>
                             <div class="product-price">R$ {{ "%.2f"|format(product.price) }}</div>
                         </div>
+                        {% if 'Pizza' in cat_name %}
+                        <button class="add-to-cart" onclick="openCrustModal({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url or '/static/img/placeholder.jpg' }}')">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        {% else %}
                         <button class="add-to-cart" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url or '/static/img/placeholder.jpg' }}')">
                             <i class="fas fa-plus"></i>
                         </button>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
         {% endfor %}
+    </div>
+</div>
+
+<!-- Modal Escolha de Borda -->
+<div id="crust-modal" class="modal-overlay" onclick="closeCrustModalOnOutsideClick(event)" style="display: none; align-items: center; justify-content: center; z-index: 2000;">
+    <div class="modal-container" style="background: white; border-radius: 15px; width: 90%; max-width: 400px; padding: 0; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.3);">
+        <div class="modal-header" style="background: var(--primary); padding: 1rem; color: white; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 1.2rem;">Escolha a sua Borda</h3>
+            <button style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;" onclick="closeCrustModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="padding: 1.5rem;">
+            <p id="crust-pizza-name" style="font-weight: 800; margin-bottom: 1.5rem; font-size: 1.1rem; color: var(--dark);"></p>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 1.5rem;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    <input type="radio" name="crust_option" value="0" data-name="" data-id-offset="0" checked style="transform: scale(1.2);"> 
+                    <span style="flex-grow: 1;">Sem borda recheada</span>
+                    <span style="font-weight: bold; color: var(--primary);">+ R$ 0,00</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    <input type="radio" name="crust_option" value="15" data-name=" c/ Borda Catupiry" data-id-offset="10000" style="transform: scale(1.2);"> 
+                    <span style="flex-grow: 1;">Borda de Catupiry</span>
+                    <span style="font-weight: bold; color: var(--primary);">+ R$ 15,00</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    <input type="radio" name="crust_option" value="20" data-name=" c/ Borda Cheddar" data-id-offset="20000" style="transform: scale(1.2);"> 
+                    <span style="flex-grow: 1;">Borda de Cheddar</span>
+                    <span style="font-weight: bold; color: var(--primary);">+ R$ 20,00</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    <input type="radio" name="crust_option" value="20" data-name=" c/ Borda Chocolate" data-id-offset="30000" style="transform: scale(1.2);"> 
+                    <span style="flex-grow: 1;">Borda de Chocolate</span>
+                    <span style="font-weight: bold; color: var(--primary);">+ R$ 20,00</span>
+                </label>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 0.8rem;" onclick="confirmCrustSelection()">
+                Adicionar ao Carrinho
+            </button>
+        </div>
     </div>
 </div>
 
@@ -111,6 +155,71 @@
                 group.style.display = 'none';
             }
         });
+    }
+
+    let currentPizzaForCrust = null;
+
+    function openCrustModal(id, name, price, image) {
+        currentPizzaForCrust = { id, name, price, image };
+        document.getElementById('crust-pizza-name').innerText = name + " - R$ " + price.toFixed(2);
+        
+        // Reset as opções de borda
+        document.querySelectorAll('input[name="crust_option"]').forEach(r => {
+            r.checked = false;
+            r.parentElement.style.borderColor = '#ddd';
+            r.parentElement.style.backgroundColor = 'transparent';
+        });
+        const defaultRadio = document.querySelector('input[name="crust_option"][value="0"]');
+        defaultRadio.checked = true;
+        defaultRadio.parentElement.style.borderColor = 'var(--primary)';
+        defaultRadio.parentElement.style.backgroundColor = '#fff8ee';
+
+        document.getElementById('crust-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Highlight the selected radio label elegantly
+    document.querySelectorAll('input[name="crust_option"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('input[name="crust_option"]').forEach(r => {
+                r.parentElement.style.borderColor = '#ddd';
+                r.parentElement.style.backgroundColor = 'transparent';
+            });
+            if (this.checked) {
+                this.parentElement.style.borderColor = 'var(--primary)';
+                this.parentElement.style.backgroundColor = '#fff8ee';
+            }
+        });
+    });
+
+    function closeCrustModal() {
+        document.getElementById('crust-modal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        currentPizzaForCrust = null;
+    }
+
+    function closeCrustModalOnOutsideClick(event) {
+        if (event.target.id === 'crust-modal') {
+            closeCrustModal();
+        }
+    }
+
+    function confirmCrustSelection() {
+        if (!currentPizzaForCrust) return;
+        const selectedOption = document.querySelector('input[name="crust_option"]:checked');
+        const crustPrice = parseFloat(selectedOption.value);
+        const crustName = selectedOption.getAttribute('data-name');
+        const crustIdOffset = parseInt(selectedOption.getAttribute('data-id-offset'));
+        
+        const finalName = currentPizzaForCrust.name + crustName;
+        const finalPrice = currentPizzaForCrust.price + crustPrice;
+        
+        // Geramos um ID falso único dependendo da borda para que o carrinho não misture
+        // Pizzas do mesmo sabor com bordas diferentes
+        const newId = currentPizzaForCrust.id + crustIdOffset;
+        
+        addToCart(newId, finalName, finalPrice, currentPizzaForCrust.image);
+        closeCrustModal();
     }
 </script>
 {% endblock %}
