@@ -29,80 +29,76 @@ def load_user(user_id):
 
 # ── Admin ────────────────────────────────────────────────────────────────────
 
-try:
-    from flask_admin import Admin
-    from flask_admin.contrib.sqla import ModelView
-    from flask_admin.theme import Bootstrap4Theme
-    from flask_admin.menu import MenuLink
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from flask_admin.menu import MenuLink
 
-    class AdminModelView(ModelView):
-        can_export = True
-        can_view_details = True
-        page_size = 50
+class AdminModelView(ModelView):
+    can_export = True
+    can_view_details = True
+    page_size = 50
 
-        def is_accessible(self):
-            return current_user.is_authenticated and current_user.is_admin
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.is_admin
 
-        def inaccessible_callback(self, name, **kwargs):
-            return redirect(url_for('login'))
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('login'))
 
-    class UserView(AdminModelView):
-        column_labels = {'username': 'Nome de Usuário', 'email': 'E-mail', 'is_admin': 'Administrador'}
-        column_list = ['id', 'username', 'email', 'is_admin']
-        column_searchable_list = ['username', 'email']
-        column_filters = ['is_admin']
-        column_editable_list = ['is_admin']
+class UserView(AdminModelView):
+    column_labels = {'username': 'Nome de Usuário', 'email': 'E-mail', 'is_admin': 'Administrador'}
+    column_list = ['id', 'username', 'email', 'is_admin']
+    column_searchable_list = ['username', 'email']
+    column_filters = ['is_admin']
+    column_editable_list = ['is_admin']
 
-    class CategoryView(AdminModelView):
-        column_labels = {'name': 'Nome da Categoria'}
-        column_list = ['id', 'name']
-        column_searchable_list = ['name']
+class CategoryView(AdminModelView):
+    column_labels = {'name': 'Nome da Categoria'}
+    column_list = ['id', 'name']
+    column_searchable_list = ['name']
 
-    class ProductView(AdminModelView):
-        column_labels = {
-            'name': 'Nome do Produto',
-            'price': 'Preço (R$)',
-            'description': 'Descrição',
-            'image_url': 'Link da Imagem',
-            'is_available': 'Disponível no Site',
-            'category': 'Categoria'
-        }
-        column_list = ['id', 'name', 'category', 'price', 'is_available']
-        column_searchable_list = ['name', 'description']
-        column_filters = ['category.name', 'is_available', 'price']
-        column_editable_list = ['price', 'is_available']
+class ProductView(AdminModelView):
+    column_labels = {
+        'name': 'Nome do Produto',
+        'price': 'Preço (R$)',
+        'description': 'Descrição',
+        'image_url': 'Link da Imagem',
+        'is_available': 'Disponível no Site',
+        'category': 'Categoria'
+    }
+    column_list = ['id', 'name', 'category', 'price', 'is_available']
+    column_searchable_list = ['name', 'description']
+    column_filters = ['category.name', 'is_available', 'price']
+    column_editable_list = ['price', 'is_available']
 
-    class NeighborhoodView(AdminModelView):
-        column_labels = {'name': 'Bairro', 'delivery_fee': 'Taxa de Entrega (R$)'}
-        column_list = ['id', 'name', 'delivery_fee']
-        column_searchable_list = ['name']
-        column_editable_list = ['delivery_fee']
+class NeighborhoodView(AdminModelView):
+    column_labels = {'name': 'Bairro', 'delivery_fee': 'Taxa de Entrega (R$)'}
+    column_list = ['id', 'name', 'delivery_fee']
+    column_searchable_list = ['name']
+    column_editable_list = ['delivery_fee']
 
-    class OrderView(AdminModelView):
-        column_labels = {
-            'user': 'Cliente',
-            'total_price': 'Valor Total (R$)',
-            'status': 'Status do Pedido',
-            'address': 'Endereço de Entrega',
-            'date_ordered': 'Data e Hora',
-            'neighborhood': 'Bairro'
-        }
-        column_list = ['id', 'user', 'total_price', 'status', 'date_ordered']
-        column_searchable_list = ['address', 'status']
-        column_filters = ['status', 'date_ordered', 'total_price']
-        column_editable_list = ['status']
-        column_default_sort = ('date_ordered', True)
+class OrderView(AdminModelView):
+    column_labels = {
+        'user': 'Cliente',
+        'total_price': 'Valor Total (R$)',
+        'status': 'Status do Pedido',
+        'address': 'Endereço de Entrega',
+        'date_ordered': 'Data e Hora',
+        'neighborhood': 'Bairro'
+    }
+    column_list = ['id', 'user', 'total_price', 'status', 'date_ordered']
+    column_searchable_list = ['address', 'status']
+    column_filters = ['status', 'date_ordered', 'total_price']
+    column_editable_list = ['status']
+    column_default_sort = ('date_ordered', True)
 
-    admin = Admin(app, name='Painel de Gestão', theme=Bootstrap4Theme())
-    admin.add_link(MenuLink(name='← Voltar ao Site', category='', url='/'))
-    admin.add_view(OrderView(Order, db.session, name='📦 Pedidos'))
-    admin.add_view(CategoryView(Category, db.session, name='Categorias', category='🍔 Catálogo'))
-    admin.add_view(ProductView(Product, db.session, name='Produtos', category='🍔 Catálogo'))
-    admin.add_view(UserView(User, db.session, name='Usuários', category='⚙️ Configurações'))
-    admin.add_view(NeighborhoodView(Neighborhood, db.session, name='Taxas de Entrega', category='⚙️ Configurações'))
+admin = Admin(app, name='Painel de Gestão', template_mode='bootstrap3')
+admin.add_link(MenuLink(name='← Voltar ao Site', category='', url='/'))
+admin.add_view(OrderView(Order, db.session, name='Pedidos'))
+admin.add_view(CategoryView(Category, db.session, name='Categorias', category='Catalogo'))
+admin.add_view(ProductView(Product, db.session, name='Produtos', category='Catalogo'))
+admin.add_view(UserView(User, db.session, name='Usuarios', category='Configuracoes'))
+admin.add_view(NeighborhoodView(Neighborhood, db.session, name='Taxas de Entrega', category='Configuracoes'))
 
-except Exception as e:
-    print(f"[AVISO] Flask-Admin não pôde ser carregado: {e}")
 
 # ── Rotas ────────────────────────────────────────────────────────────────────
 
