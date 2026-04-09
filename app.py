@@ -217,14 +217,14 @@ def init_db():
 
         # Produtos de exemplo — Hambúrgueres
         db.session.add_all([
-            Product(name='X-Burguer Clássico',    description='Hambúrguer artesanal, queijo cheddar, alface e tomate.',         price=22.90, category=hamburguer, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400'),
-            Product(name='X-Bacon Duplo',          description='Dois burgers, bacon crocante, queijo e molho especial.',         price=32.90, category=hamburguer, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400'),
-            Product(name='Smash Burger',           description='Burger prensado na chapa, caramelizado e super saboroso.',       price=28.90, category=hamburguer, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400'),
-            Product(name='Frango Crispy',          description='Filé de frango empanado, alface americana e maionese.',         price=24.90, category=hamburguer, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400'),
+            Product(name='Hambúrguer',            description='Pão, 2 bifes, cheddar, catupiry, milho, batata palha, alface e tomate.',         price=17.00, category=hamburguer, is_available=True, image_url='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400'),
+            Product(name='X-Burguer',             description='Pão, 2 bifes, mussarela, cheddar, catupiry, milho, batata palha, alface e tomate.', price=19.00, category=hamburguer, is_available=True, image_url='https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400'),
+            Product(name='X-Egg',                 description='Pão, 2 bifes, mussarela, ovo, cheddar, catupiry, milho, batata palha, alface e tomate.', price=21.00, category=hamburguer, is_available=True, image_url='https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400'),
+            Product(name='Bacon Burguer',         description='Pão, 2 bifes, bacon, cheddar, catupiry, milho, batata palha, alface e tomate.',  price=22.00, category=hamburguer, is_available=True, image_url='https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400'),
+            Product(name='X-Bacon',               description='Pão, 2 bifes, mussarela, bacon, cheddar, catupiry, milho, batata palha, alface e tomate.', price=24.00, category=hamburguer, is_available=True, image_url='https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400'),
+            Product(name='X-Egg Bacon',           description='Pão, 2 bifes, mussarela, ovo, bacon, cheddar, catupiry, milho, batata palha, alface e tomate.', price=26.00, category=hamburguer, is_available=True, image_url='https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=400'),
+            Product(name='X-Tudo',                description='Pão, 2 bifes, mussarela, presunto, ovo, bacon, cheddar, catupiry, milho, batata palha, alface e tomate.', price=27.00, category=hamburguer, is_available=True, image_url='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400'),
+            Product(name='X-Gordin',              description='Pão, 3 bifes, 2 mussarelas, 2 presuntos, 2 ovos, bacon, cheddar, catupiry, milho, batata palha, alface e tomate.', price=31.00, category=hamburguer, is_available=True, image_url='https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400'),
         ])
 
         # Produtos de exemplo — Pizzas
@@ -241,26 +241,10 @@ def init_db():
 
         # Produtos de exemplo — Bebidas
         db.session.add_all([
-            Product(name='Coca-Cola Lata 350ml',    description='Gelada e refrescante.',                                                    price=6.00,  category=bebidas, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400'),
-            Product(name='Coca-Cola 1 Litro',       description='Garrafa de 1 litro gelada, perfeita para dividir.',                        price=9.00,  category=bebidas, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'),
-            Product(name='Coca-Cola 2 Litros',      description='Garrafa família de 2 litros, ideal para acompanhar o pedido da turma.',     price=14.00, category=bebidas, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'),
-            Product(name='Pepsi Lata 350ml',        description='Sabor único e refrescante, bem geladinha.',                                price=6.00,  category=bebidas, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400'),
-            Product(name='Pepsi 1 Litro',           description='Garrafa de 1 litro da Pepsi geladinha.',                                   price=9.00,  category=bebidas, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400'),
-            Product(name='Kuat Lata 350ml',         description='Guaraná Kuat geladinho, sabor suave e refrescante.',                       price=6.00,  category=bebidas, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1581098365948-6a5a912b7a49?w=400'),
-            Product(name='Kuat 1 Litro',            description='Garrafa de 1 litro do Kuat, levinho e refrescante.',                       price=9.00,  category=bebidas, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1581098365948-6a5a912b7a49?w=400'),
-            Product(name='Refrigerante Mini (Lata 220ml)', description='Latinha gelada, opção individual — diversas marcas disponíveis.',   price=4.50,  category=bebidas, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1567591370078-f5db83b20872?w=400'),
-            Product(name='Suco de Laranja Natural', description='Laranja espremida na hora, sem conservantes.',                             price=10.00, category=bebidas, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400'),
-            Product(name='Água Mineral 500ml',      description='Água gelada sem gás.',                                                     price=4.00,  category=bebidas, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1564419320461-6870880221ad?w=400'),
+            Product(name='Refri Mini',              description='Lata ou mini pet bem gelada.', price=3.00,  category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400'),
+            Product(name='Refri 1 L',               description='Garrafa de 1 litro.', price=8.00,  category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'),
+            Product(name='Kuat 2 L',                description='Garrafa de 2 litros do Guaraná Kuat.', price=10.00, category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1581098365948-6a5a912b7a49?w=400'),
+            Product(name='Coca 2 L',                description='Garrafa família de 2 litros gelada.', price=16.00, category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'),
         ])
 
         # Produtos de exemplo — Combos
