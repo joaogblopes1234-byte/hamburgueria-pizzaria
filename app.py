@@ -235,11 +235,25 @@ def init_db():
 
         # Produtos de exemplo — Bebidas
         db.session.add_all([
-            Product(name='Coca-Cola Lata 350ml',   description='Gelada e refrescante.',                                        price=6.00,  category=bebidas, is_available=True,
+            Product(name='Coca-Cola Lata 350ml',    description='Gelada e refrescante.',                                                    price=6.00,  category=bebidas, is_available=True,
                     image_url='https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400'),
-            Product(name='Suco de Laranja Natural',description='Laranja espremida na hora, sem conservantes.',                price=10.00, category=bebidas, is_available=True,
+            Product(name='Coca-Cola 1 Litro',       description='Garrafa de 1 litro gelada, perfeita para dividir.',                        price=9.00,  category=bebidas, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'),
+            Product(name='Coca-Cola 2 Litros',      description='Garrafa família de 2 litros, ideal para acompanhar o pedido da turma.',     price=14.00, category=bebidas, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'),
+            Product(name='Pepsi Lata 350ml',        description='Sabor único e refrescante, bem geladinha.',                                price=6.00,  category=bebidas, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400'),
+            Product(name='Pepsi 1 Litro',           description='Garrafa de 1 litro da Pepsi geladinha.',                                   price=9.00,  category=bebidas, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400'),
+            Product(name='Kuat Lata 350ml',         description='Guaraná Kuat geladinho, sabor suave e refrescante.',                       price=6.00,  category=bebidas, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1581098365948-6a5a912b7a49?w=400'),
+            Product(name='Kuat 1 Litro',            description='Garrafa de 1 litro do Kuat, levinho e refrescante.',                       price=9.00,  category=bebidas, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1581098365948-6a5a912b7a49?w=400'),
+            Product(name='Refrigerante Mini (Lata 220ml)', description='Latinha gelada, opção individual — diversas marcas disponíveis.',   price=4.50,  category=bebidas, is_available=True,
+                    image_url='https://images.unsplash.com/photo-1567591370078-f5db83b20872?w=400'),
+            Product(name='Suco de Laranja Natural', description='Laranja espremida na hora, sem conservantes.',                             price=10.00, category=bebidas, is_available=True,
                     image_url='https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400'),
-            Product(name='Água Mineral 500ml',     description='Água gelada sem gás.',                                        price=4.00,  category=bebidas, is_available=True,
+            Product(name='Água Mineral 500ml',      description='Água gelada sem gás.',                                                     price=4.00,  category=bebidas, is_available=True,
                     image_url='https://images.unsplash.com/photo-1564419320461-6870880221ad?w=400'),
         ])
 
