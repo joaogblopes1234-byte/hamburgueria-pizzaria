@@ -162,7 +162,7 @@ function checkout() {
     message += `%0A%0A*Endereço:* ${address}`;
     message += `%0A*Bairro:* ${neighborhood}`;
 
-    const whatsappNumber = "553173524487";
+    const whatsappNumber = "5531994627746";
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
     
     // Clear cart after redirect
