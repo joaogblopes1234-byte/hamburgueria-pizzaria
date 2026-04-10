@@ -186,20 +186,20 @@ function checkout() {
               localStorage.removeItem('gordin_cart');
               
               // Gera string para WhatsApp
-              let message = `*Pedido Gordin Lanches (Pedido #${data.order_id})*%0A%0A`;
-              message += `*Itens:*%0A`;
+              let message = `*Pedido Gordin Lanches (Pedido #${data.order_id})*\n\n`;
+              message += `*Itens:*\n`;
               cart.forEach(item => {
-                  message += `- ${item.quantity}x ${item.name} (R$ ${(item.price * item.quantity).toFixed(2)})%0A`;
+                  message += `- ${item.quantity}x ${item.name} (R$ ${(item.price * item.quantity).toFixed(2)})\n`;
               });
               
-              message += `%0A*Subtotal:* R$ ${subtotal.toFixed(2)}`;
-              message += `%0A*Entrega:* R$ ${deliveryFee.toFixed(2)} (${neighborhood})`;
-              message += `%0A*Total:* R$ ${total.toFixed(2)}`;
-              message += `%0A%0A*Endereço:* ${address}`;
-              message += `%0A*Bairro:* ${neighborhood}`;
+              message += `\n*Subtotal:* R$ ${subtotal.toFixed(2)}`;
+              message += `\n*Entrega:* R$ ${deliveryFee.toFixed(2)} (${neighborhood})`;
+              message += `\n*Total:* R$ ${total.toFixed(2)}`;
+              message += `\n\n*Endereço:* ${address}`;
+              message += `\n*Bairro:* ${neighborhood}`;
 
               const whatsappNumber = "5531994627746";
-              const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+              const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
               
               window.open(whatsappUrl, '_blank');
               window.location.reload();
