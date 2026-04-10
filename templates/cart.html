@@ -48,4 +48,29 @@
         <button onclick="checkout()" class="btn btn-primary" style="width: 100%; font-size: 1.2rem;">Finalizar no WhatsApp <i class="fab fa-whatsapp"></i></button>
     </div>
 </div>
+
+{% if not current_user.is_authenticated %}
+<!-- Modal exigindo login para finalizar pedido -->
+<div id="checkout-login-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 3000;">
+    <div class="modal-container" style="background: white; border-radius: 15px; width: 90%; max-width: 400px; padding: 2.5rem 2rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative;">
+        <button onclick="document.getElementById('checkout-login-modal').style.display='none'; document.body.style.overflow='auto';" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#999'"><i class="fas fa-times"></i></button>
+        
+        <div style="font-size: 3.5rem; color: var(--primary); margin-bottom: 1rem;">
+            <i class="fas fa-user-lock"></i>
+        </div>
+        <h3 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.4rem;">Falta pouco para finalizar!</h3>
+        <p style="color: #666; margin-bottom: 2rem; line-height: 1.5; font-size: 1.05rem;">Para enviar seu pedido, precisamos que você acesse ou crie sua conta rapidamente. É jogo rápido!</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="{{ url_for('login') }}" class="btn btn-primary" style="padding: 0.9rem; text-decoration: none; font-weight: bold; font-size: 1.1rem;">Fazer Login</a>
+            <a href="{{ url_for('register') }}" style="color: var(--primary); text-decoration: underline; font-weight: bold; font-size: 1rem; padding: 0.5rem;">Não tenho conta, quero me cadastrar</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    const isUserAuthenticated = {{ 'true' if current_user.is_authenticated else 'false' }};
+</script>
+
 {% endblock %}

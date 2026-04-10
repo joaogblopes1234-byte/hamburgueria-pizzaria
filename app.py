@@ -175,6 +175,48 @@ def api_products():
         'category': p.category.name
     } for p in products])
 
+@app.route('/api/checkout', methods=['POST'])
+@login_required
+def api_checkout():
+    data = request.json
+    address = data.get('address')
+    neighborhood_id = data.get('neighborhood_id')
+    delivery_fee = data.get('delivery_fee', 0)
+    total_price = data.get('total_price', 0)
+    items = data.get('items', [])
+    
+    if not address or not neighborhood_id or not items:
+        return jsonify({'success': False, 'message': 'Missing data'}), 400
+        
+    # Extrair observações do nome do item para salvar no endereço para o painel admin
+    observations = [f"{item['quantity']}x {item['name']}" for item in items if '(Obs:' in item['name']]
+    final_address = address
+    if observations:
+        final_address += f" | NOTAS: {', '.join(observations)}"
+
+    new_order = Order(
+        user_id=current_user.id,
+        address=final_address,
+        neighborhood_id=neighborhood_id,
+        delivery_fee=delivery_fee,
+        total_price=total_price,
+        status='Pending'
+    )
+    db.session.add(new_order)
+    db.session.flush() 
+    
+    for item in items:
+        order_item = OrderItem(
+            order_id=new_order.id,
+            product_id=item.get('product_id'),
+            quantity=item.get('quantity', 1),
+            price_at_order=item.get('price', 0)
+        )
+        db.session.add(order_item)
+        
+    db.session.commit()
+    return jsonify({'success': True, 'order_id': new_order.id})
+
 # ── Inicialização do Banco ─────────────────────────────────────────────────
 
 def init_db():

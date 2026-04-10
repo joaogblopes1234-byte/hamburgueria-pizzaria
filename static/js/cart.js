@@ -32,6 +32,7 @@ function addToCart(productId, name, price, image, obs="") {
     } else {
         cart.push({
             id: cartId,
+            product_id: parseInt(productId),
             name: finalName,
             price: price,
             image: image,
@@ -137,12 +138,22 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function checkout() {
+    if (typeof isUserAuthenticated !== 'undefined' && !isUserAuthenticated) {
+        const loginModal = document.getElementById('checkout-login-modal');
+        if (loginModal) {
+            loginModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            return;
+        }
+    }
+
     const address = document.getElementById('address')?.value;
     const neighborhoodSelect = document.getElementById('neighborhood');
-    const neighborhood = neighborhoodSelect?.options[neighborhoodSelect.selectedIndex].text;
+    const neighborhoodId = neighborhoodSelect?.value;
+    const neighborhood = neighborhoodSelect?.options[neighborhoodSelect.selectedIndex]?.text;
     const deliveryFee = neighborhoodSelect ? parseFloat(neighborhoodSelect.options[neighborhoodSelect.selectedIndex]?.dataset.fee || 0) : 0;
     
-    if (!address || !neighborhoodSelect.value) {
+    if (!address || !neighborhoodId) {
         alert('Por favor, preencha o endereço e selecione o bairro.');
         return;
     }
@@ -150,23 +161,54 @@ function checkout() {
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const total = subtotal + deliveryFee;
 
-    let message = `*Pedido Gordin Lanches*%0A%0A`;
-    message += `*Itens:*%0A`;
-    cart.forEach(item => {
-        message += `- ${item.quantity}x ${item.name} (R$ ${(item.price * item.quantity).toFixed(2)})%0A`;
-    });
-    
-    message += `%0A*Subtotal:* R$ ${subtotal.toFixed(2)}`;
-    message += `%0A*Entrega:* R$ ${deliveryFee.toFixed(2)} (${neighborhood})`;
-    message += `%0A*Total:* R$ ${total.toFixed(2)}`;
-    message += `%0A%0A*Endereço:* ${address}`;
-    message += `%0A*Bairro:* ${neighborhood}`;
+    // Send to backend via AJAX
+    fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            address: address,
+            neighborhood_id: parseInt(neighborhoodId),
+            items: cart.map(item => ({
+                product_id: item.product_id,
+                quantity: item.quantity,
+                price: item.price,
+                name: item.name // sending name just in case backend wants to log observation
+            })),
+            delivery_fee: deliveryFee,
+            total_price: total
+        })
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              // Limpa carrinho
+              localStorage.removeItem('gordin_cart');
+              
+              // Gera string para WhatsApp
+              let message = `*Pedido Gordin Lanches (Pedido #${data.order_id})*%0A%0A`;
+              message += `*Itens:*%0A`;
+              cart.forEach(item => {
+                  message += `- ${item.quantity}x ${item.name} (R$ ${(item.price * item.quantity).toFixed(2)})%0A`;
+              });
+              
+              message += `%0A*Subtotal:* R$ ${subtotal.toFixed(2)}`;
+              message += `%0A*Entrega:* R$ ${deliveryFee.toFixed(2)} (${neighborhood})`;
+              message += `%0A*Total:* R$ ${total.toFixed(2)}`;
+              message += `%0A%0A*Endereço:* ${address}`;
+              message += `%0A*Bairro:* ${neighborhood}`;
 
-    const whatsappNumber = "5531994627746";
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
-    
-    // Clear cart after redirect
-    localStorage.removeItem('gordin_cart');
-    
-    window.open(whatsappUrl, '_blank');
+              const whatsappNumber = "5531994627746";
+              const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+              
+              window.open(whatsappUrl, '_blank');
+              window.location.reload();
+          } else {
+              alert("Ocorreu um erro ao processar seu pedido. Tente novamente ou contate e suporte.");
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert("Ocorreu um erro na conexão. Verifique sua internet.");
+      });
 }
