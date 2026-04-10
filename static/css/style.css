@@ -436,21 +436,33 @@ nav ul li a:hover {
     color: var(--primary);
 }
 
-.instagram-link {
+.social-pill {
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     gap: 10px;
-    color: var(--dark);
     text-decoration: none;
-    font-weight: 600;
-    margin-bottom: 2rem;
+    font-weight: 700;
+    transition: 0.3s;
+    font-size: 1rem;
 }
 
-.instagram-link i {
-    font-size: 1.5rem;
+.social-pill.instagram {
     background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: white;
+    box-shadow: 0 4px 15px rgba(220, 39, 67, 0.3);
+}
+
+.social-pill.facebook {
+    background: #1877f2;
+    color: white;
+    box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+}
+
+.social-pill:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
 }
 
 .address-text {
@@ -633,7 +645,28 @@ footer {
 
 .social-links {
     display: flex;
-    gap: 1rem;
+    gap: 1.2rem;
+}
+
+.social-links a {
+    font-size: 1.6rem;
+    color: #ccc;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.social-links a:hover {
+    transform: scale(1.2);
+}
+
+.social-links a:hover .fa-instagram {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.social-links a:hover .fa-facebook {
+    color: #1877f2;
 }
 
 .footer-bottom {

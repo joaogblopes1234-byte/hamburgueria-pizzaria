@@ -132,8 +132,33 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCart();
 
     const neighborhoodSelect = document.getElementById('neighborhood');
+    const addressInput = document.getElementById('address');
+
+    // Carregar endereço salvo
+    const savedAddress = localStorage.getItem('gordin_address');
+    const savedNeighborhood = localStorage.getItem('gordin_neighborhood');
+
+    if (savedAddress && addressInput) {
+        addressInput.value = savedAddress;
+    }
+
+    if (savedNeighborhood && neighborhoodSelect) {
+        neighborhoodSelect.value = savedNeighborhood;
+        // Forçar re-render para calcular taxa de entrega corretamente
+        renderCart();
+    }
+
     if (neighborhoodSelect) {
-        neighborhoodSelect.addEventListener('change', renderCart);
+        neighborhoodSelect.addEventListener('change', () => {
+            localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
+            renderCart();
+        });
+    }
+
+    if (addressInput) {
+        addressInput.addEventListener('input', () => {
+            localStorage.setItem('gordin_address', addressInput.value);
+        });
     }
 });
 
@@ -187,57 +212,95 @@ function checkout() {
                 product_id: item.product_id,
                 quantity: item.quantity,
                 price: item.price,
-                name: item.name // sending name just in case backend wants to log observation
+                name: item.name 
             })),
             delivery_fee: deliveryFee,
             total_price: total
         })
-    }).then(response => response.json())
-      .then(data => {
-          if (data.success) {
-              // Limpa carrinho local antes de abrir
-              localStorage.removeItem('gordin_cart');
-              
-              // Gera string para WhatsApp
-              let message = `*Pedido Gordin Lanches (Pedido #${data.order_id})*\n\n`;
-              message += `*Itens:*\n`;
-              cart.forEach(item => {
-                  message += `- ${item.quantity}x ${item.name} (R$ ${(item.price * item.quantity).toFixed(2)})\n`;
-              });
-              
-              message += `\n*Subtotal:* R$ ${subtotal.toFixed(2)}`;
-              message += `\n*Entrega:* R$ ${deliveryFee.toFixed(2)} (${neighborhoodName})`;
-              message += `\n*Total:* R$ ${total.toFixed(2)}`;
-              message += `\n\n*Endereço:* ${address}`;
-              message += `\n*Bairro:* ${neighborhoodName}`;
+    }).then(async response => {
+        if (!response.ok) {
+            // Se for 401 (Não autorizado), a sessão provavelmente expirou
+            if (response.status === 401) {
+                throw new Error('SESSION_EXPIRED');
+            }
+            
+            // Tenta pegar a mensagem de erro do JSON se existir
+            try {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'SERVER_ERROR');
+            } catch (e) {
+                if (e.message === 'SESSION_EXPIRED') throw e;
+                throw new Error('SERVER_ERROR');
+            }
+        }
+        return response.json();
+    }).then(data => {
+        if (data.success) {
+            // Limpa carrinho local antes de abrir
+            localStorage.removeItem('gordin_cart');
+            localStorage.removeItem('gordin_address');
+            localStorage.removeItem('gordin_neighborhood');
+            
+            // Gera string para WhatsApp
+            let message = `*Pedido Gordin Lanches (Pedido #${data.order_id})*\n\n`;
+            message += `*Itens:*\n`;
+            cart.forEach(item => {
+                message += `- ${item.quantity}x ${item.name} (R$ ${(item.price * item.quantity).toFixed(2)})\n`;
+            });
+            
+            message += `\n*Subtotal:* R$ ${subtotal.toFixed(2)}`;
+            message += `\n*Entrega:* R$ ${deliveryFee.toFixed(2)} (${neighborhoodName})`;
+            message += `\n*Total:* R$ ${total.toFixed(2)}`;
+            message += `\n\n*Endereço:* ${address}`;
+            message += `\n*Bairro:* ${neighborhoodName}`;
 
-              const whatsappNumber = "5531994627746";
-              const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-              
-              window.open(whatsappUrl, '_blank');
-              
-              // Em vez de reload imediato, mostra mensagem e limpa a tela
-              const container = document.querySelector('.container');
-              if (container) {
-                  container.innerHTML = `
-                      <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 20px; box-shadow: var(--shadow); margin-top: 2rem;">
-                          <div style="font-size: 4rem; color: var(--success); margin-bottom: 1.5rem;"><i class="fas fa-check-circle"></i></div>
-                          <h2 style="margin-bottom: 1rem;">Pedido Iniciado!</h2>
-                          <p style="color: #666; margin-bottom: 2rem;">Seu pedido foi registrado no sistema e o WhatsApp foi aberto. Finalize o envio por lá!</p>
-                          <a href="/" class="btn btn-primary">Voltar para o Início</a>
-                      </div>
-                  `;
-              }
-          } else {
-              alert("Ocorreu um erro ao processar seu pedido. Tente novamente ou contate o suporte.");
-              if (checkoutBtn) {
-                  checkoutBtn.disabled = false;
-                  checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
-              }
-          }
-      })
-      .catch(error => {
-          console.error('Error:', error);
-          alert("Ocorreu um erro na conexão. Verifique sua internet.");
-      });
+            const whatsappNumber = "5531994627746";
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+            
+            // window.open pode ser bloqueado em mobile se não for ação direta,
+            // mas aqui estamos dentro de um then. Tentaremos location.href se falhar ou se preferir.
+            try {
+                const win = window.open(whatsappUrl, '_blank');
+                if (!win) window.location.href = whatsappUrl;
+            } catch (e) {
+                window.location.href = whatsappUrl;
+            }
+            
+            // Em vez de reload imediato, mostra mensagem e limpa a tela
+            const container = document.querySelector('.container');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 20px; box-shadow: var(--shadow); margin-top: 2rem;">
+                        <div style="font-size: 4rem; color: var(--success); margin-bottom: 1.5rem;"><i class="fas fa-check-circle"></i></div>
+                        <h2 style="margin-bottom: 1rem;">Pedido Iniciado!</h2>
+                        <p style="color: #666; margin-bottom: 2rem;">Seu pedido foi registrado no sistema e o WhatsApp foi aberto. Finalize o envio por lá!</p>
+                        <a href="/" class="btn btn-primary">Voltar para o Início</a>
+                    </div>
+                `;
+            }
+        } else {
+            alert("Ocorreu um erro ao processar seu pedido: " + (data.message || "Tente novamente ou contate o suporte."));
+            if (checkoutBtn) {
+                checkoutBtn.disabled = false;
+                checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        
+        if (error.message === 'SESSION_EXPIRED') {
+            alert("Sua sessão expirou. Por favor, faça login novamente para finalizar o pedido.");
+            window.location.href = '/login?next=/cart';
+        } else if (error.message === 'SERVER_ERROR') {
+            alert("Ocorreu um erro interno no servidor ao processar seu pedido. Por favor, tente novamente mais tarde ou chame no WhatsApp direto.");
+        } else {
+            alert("Ocorreu um erro na conexão ou ao processar os dados. Verifique sua internet.");
+        }
+
+        if (checkoutBtn) {
+            checkoutBtn.disabled = false;
+            checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
+        }
+    });
 }

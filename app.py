@@ -189,44 +189,53 @@ def api_products():
 @app.route('/api/checkout', methods=['POST'])
 @login_required
 def api_checkout():
-    data = request.json
-    address = data.get('address')
-    neighborhood_id = data.get('neighborhood_id')
-    delivery_fee = data.get('delivery_fee', 0)
-    total_price = data.get('total_price', 0)
-    items = data.get('items', [])
-    
-    if not address or not neighborhood_id or not items:
-        return jsonify({'success': False, 'message': 'Missing data'}), 400
-        
-    # Extrair observações do nome do item para salvar no endereço para o painel admin
-    observations = [f"{item['quantity']}x {item['name']}" for item in items if '(Obs:' in item['name']]
-    final_address = address
-    if observations:
-        final_address += f" | NOTAS: {', '.join(observations)}"
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'success': False, 'message': 'No data provided'}), 400
 
-    new_order = Order(
-        user_id=current_user.id,
-        address=final_address,
-        neighborhood_id=neighborhood_id,
-        delivery_fee=delivery_fee,
-        total_price=total_price,
-        status='Pending'
-    )
-    db.session.add(new_order)
-    db.session.flush() 
-    
-    for item in items:
-        order_item = OrderItem(
-            order_id=new_order.id,
-            product_id=item.get('product_id'),
-            quantity=item.get('quantity', 1),
-            price_at_order=item.get('price', 0)
-        )
-        db.session.add(order_item)
+        address = data.get('address')
+        neighborhood_id = data.get('neighborhood_id')
+        delivery_fee = data.get('delivery_fee', 0)
+        total_price = data.get('total_price', 0)
+        items = data.get('items', [])
         
-    db.session.commit()
-    return jsonify({'success': True, 'order_id': new_order.id})
+        if not address or not neighborhood_id or not items:
+            return jsonify({'success': False, 'message': 'Endereço, bairro ou itens faltando.'}), 400
+            
+        # Extrair observações do nome do item para salvar no endereço para o painel admin
+        observations = [f"{item['quantity']}x {item['name']}" for item in items if '(Obs:' in item['name']]
+        final_address = address
+        if observations:
+            final_address += f" | NOTAS: {', '.join(observations)}"
+
+        new_order = Order(
+            user_id=current_user.id,
+            address=final_address,
+            neighborhood_id=neighborhood_id,
+            delivery_fee=delivery_fee,
+            total_price=total_price,
+            status='Pending'
+        )
+        db.session.add(new_order)
+        db.session.flush() 
+        
+        for item in items:
+            order_item = OrderItem(
+                order_id=new_order.id,
+                product_id=item.get('product_id'),
+                quantity=item.get('quantity', 1),
+                price_at_order=item.get('price', 0)
+            )
+            db.session.add(order_item)
+            
+        db.session.commit()
+        return jsonify({'success': True, 'order_id': new_order.id})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Checkout Error: {str(e)}")
+        # Em produção, não queremos expor detalhes sensíveis, mas uma mensagem útil ajuda
+        return jsonify({'success': False, 'message': 'Erro interno ao processar o pedido no banco de dados.'}), 500
 
 # ── Inicialização do Banco ─────────────────────────────────────────────────
 
@@ -327,10 +336,13 @@ def init_db():
 
         # Produtos de exemplo — Combos
         db.session.add_all([
-            Product(name='Combo X-Burguer + Fritas + Refri', description='X-Burguer clássico + porção de fritas + refrigerante lata.', price=34.90, category=combos, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400'),
-            Product(name='Combo Família Pizza Grande',       description='1 Pizza grande + 2 refrigerantes lata.',                     price=69.90, category=combos, is_available=True,
-                    image_url='https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=400'),
+            Product(name='Combo X-Bacon', description='X-Bacon + 100g de batata + um refrigerante mini.', price=28.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400'),
+            Product(name='Combo X-Tudo', description='X-Tudo + 100g de batata + um refrigerante mini.', price=31.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400'),
+            Product(name='Combo X-Egg', description='X-Egg + 100g de batata + um refrigerante mini.', price=27.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1510703810270-449e2187f516?w=400'),
+            Product(name='Combo Casal', description='1x X-Bacon + 1x X-Tudo + porção de batata + refrigerante 1L.', price=60.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1550547660-d9450f859349?w=400'),
+            Product(name='Combo Ideal', description='03 hambúrgueres + porção de batata + bebida.', price=69.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1521305916504-4a1121188589?w=400'),
+            Product(name='Combo Duplo X-Gordin', description='2x X-Gordin + porção de fritas + refrigerante 1L.', price=75.00, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400'),
+            Product(name='Combo Duplo X-Bacon', description='2x X-Bacon + porção de fritas + refrigerante 1L.', price=55.00, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400'),
         ])
 
         db.session.commit()
