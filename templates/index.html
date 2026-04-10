@@ -116,6 +116,25 @@
             </div>
             
             <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-weight: bold; margin-bottom: 10px; color: var(--dark);">Deseja adicionar uma bebida?</label>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                        <input type="radio" name="pizza_drink_option" value="0" data-id="0" data-name="" data-image="" checked style="transform: scale(1.2);"> 
+                        <span style="flex-grow: 1;">Não, obrigado</span>
+                        <span style="font-weight: bold; color: var(--primary);">+ R$ 0,00</span>
+                    </label>
+                    {% set bebidas = products | selectattr('category.name', 'equalto', 'Bebidas') | list %}
+                    {% for bebida in bebidas %}
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                        <input type="radio" name="pizza_drink_option" value="{{ bebida.price }}" data-id="{{ bebida.id }}" data-name="{{ bebida.name }}" data-image="{{ bebida.image_url or '/static/img/placeholder.jpg' }}" style="transform: scale(1.2);"> 
+                        <span style="flex-grow: 1;">{{ bebida.name }}</span>
+                        <span style="font-weight: bold; color: var(--primary);">+ R$ {{ "%.2f"|format(bebida.price) }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
                 <label style="display: block; font-weight: bold; margin-bottom: 5px; color: var(--dark);">Alguma observação?</label>
                 <textarea id="crust-obs" placeholder="Ex: Tirar cebola, sem milho, bem assada..." style="width: 100%; border-radius: 8px; border: 1px solid #ddd; padding: 10px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
             </div>
@@ -221,6 +240,19 @@
         defaultRadio.parentElement.style.borderColor = 'var(--primary)';
         defaultRadio.parentElement.style.backgroundColor = '#fff8ee';
 
+        // Reset as opções de bebida na pizza
+        document.querySelectorAll('input[name="pizza_drink_option"]').forEach(r => {
+            r.checked = false;
+            r.parentElement.style.borderColor = '#ddd';
+            r.parentElement.style.backgroundColor = 'transparent';
+        });
+        const defaultPizzaDrink = document.querySelector('input[name="pizza_drink_option"][value="0"]');
+        if (defaultPizzaDrink) {
+            defaultPizzaDrink.checked = true;
+            defaultPizzaDrink.parentElement.style.borderColor = 'var(--primary)';
+            defaultPizzaDrink.parentElement.style.backgroundColor = '#fff8ee';
+        }
+
         document.getElementById('crust-obs').value = '';
 
         document.getElementById('crust-modal').style.display = 'flex';
@@ -231,6 +263,19 @@
     document.querySelectorAll('input[name="crust_option"]').forEach(radio => {
         radio.addEventListener('change', function() {
             document.querySelectorAll('input[name="crust_option"]').forEach(r => {
+                r.parentElement.style.borderColor = '#ddd';
+                r.parentElement.style.backgroundColor = 'transparent';
+            });
+            if (this.checked) {
+                this.parentElement.style.borderColor = 'var(--primary)';
+                this.parentElement.style.backgroundColor = '#fff8ee';
+            }
+        });
+    });
+
+    document.querySelectorAll('input[name="pizza_drink_option"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('input[name="pizza_drink_option"]').forEach(r => {
                 r.parentElement.style.borderColor = '#ddd';
                 r.parentElement.style.backgroundColor = 'transparent';
             });
@@ -269,6 +314,21 @@
         const newId = currentPizzaForCrust.id + crustIdOffset;
         
         addToCart(newId, finalName, finalPrice, currentPizzaForCrust.image, obs);
+
+        const selectedDrinkOption = document.querySelector('input[name="pizza_drink_option"]:checked');
+        const drinkId = selectedDrinkOption.getAttribute('data-id');
+
+        if (drinkId !== "0") {
+            const drinkPrice = parseFloat(selectedDrinkOption.value);
+            const drinkName = selectedDrinkOption.getAttribute('data-name');
+            const drinkImage = selectedDrinkOption.getAttribute('data-image');
+            
+            // Adiciona a bebida (sem observação)
+            setTimeout(() => {
+                addToCart(parseInt(drinkId), drinkName, drinkPrice, drinkImage);
+            }, 300);
+        }
+
         closeCrustModal();
     }
 
