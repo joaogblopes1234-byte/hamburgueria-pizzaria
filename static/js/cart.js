@@ -147,14 +147,27 @@ function checkout() {
         }
     }
 
+    const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
+    if (checkoutBtn) {
+        checkoutBtn.disabled = true;
+        checkoutBtn.innerHTML = 'Processando... <i class="fas fa-spinner fa-spin"></i>';
+    }
+
     const address = document.getElementById('address')?.value;
     const neighborhoodSelect = document.getElementById('neighborhood');
     const neighborhoodId = neighborhoodSelect?.value;
-    const neighborhood = neighborhoodSelect?.options[neighborhoodSelect.selectedIndex]?.text;
-    const deliveryFee = neighborhoodSelect ? parseFloat(neighborhoodSelect.options[neighborhoodSelect.selectedIndex]?.dataset.fee || 0) : 0;
+    
+    // Pegar o NOME puro do bairro (sem o R$)
+    const selectedOption = neighborhoodSelect?.options[neighborhoodSelect.selectedIndex];
+    const neighborhoodName = selectedOption?.dataset.name || selectedOption?.text;
+    const deliveryFee = selectedOption ? parseFloat(selectedOption.dataset.fee || 0) : 0;
     
     if (!address || !neighborhoodId) {
         alert('Por favor, preencha o endereço e selecione o bairro.');
+        if (checkoutBtn) {
+            checkoutBtn.disabled = false;
+            checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
+        }
         return;
     }
 
@@ -182,7 +195,7 @@ function checkout() {
     }).then(response => response.json())
       .then(data => {
           if (data.success) {
-              // Limpa carrinho
+              // Limpa carrinho local antes de abrir
               localStorage.removeItem('gordin_cart');
               
               // Gera string para WhatsApp
@@ -193,18 +206,34 @@ function checkout() {
               });
               
               message += `\n*Subtotal:* R$ ${subtotal.toFixed(2)}`;
-              message += `\n*Entrega:* R$ ${deliveryFee.toFixed(2)} (${neighborhood})`;
+              message += `\n*Entrega:* R$ ${deliveryFee.toFixed(2)} (${neighborhoodName})`;
               message += `\n*Total:* R$ ${total.toFixed(2)}`;
               message += `\n\n*Endereço:* ${address}`;
-              message += `\n*Bairro:* ${neighborhood}`;
+              message += `\n*Bairro:* ${neighborhoodName}`;
 
               const whatsappNumber = "5531994627746";
               const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
               
               window.open(whatsappUrl, '_blank');
-              window.location.reload();
+              
+              // Em vez de reload imediato, mostra mensagem e limpa a tela
+              const container = document.querySelector('.container');
+              if (container) {
+                  container.innerHTML = `
+                      <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 20px; box-shadow: var(--shadow); margin-top: 2rem;">
+                          <div style="font-size: 4rem; color: var(--success); margin-bottom: 1.5rem;"><i class="fas fa-check-circle"></i></div>
+                          <h2 style="margin-bottom: 1rem;">Pedido Iniciado!</h2>
+                          <p style="color: #666; margin-bottom: 2rem;">Seu pedido foi registrado no sistema e o WhatsApp foi aberto. Finalize o envio por lá!</p>
+                          <a href="/" class="btn btn-primary">Voltar para o Início</a>
+                      </div>
+                  `;
+              }
           } else {
-              alert("Ocorreu um erro ao processar seu pedido. Tente novamente ou contate e suporte.");
+              alert("Ocorreu um erro ao processar seu pedido. Tente novamente ou contate o suporte.");
+              if (checkoutBtn) {
+                  checkoutBtn.disabled = false;
+                  checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
+              }
           }
       })
       .catch(error => {

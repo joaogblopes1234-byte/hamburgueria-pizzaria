@@ -19,7 +19,7 @@
                 <select id="neighborhood" class="form-input">
                     <option value="" disabled selected>Escolha um bairro...</option>
                     {% for n in neighborhoods %}
-                    <option value="{{ n.id }}" data-fee="{{ n.delivery_fee }}">{{ n.name }} (R$ {{ "%.2f"|format(n.delivery_fee) }})</option>
+                    <option value="{{ n.id }}" data-fee="{{ n.delivery_fee }}" data-name="{{ n.name }}">{{ n.name }} (R$ {{ "%.2f"|format(n.delivery_fee) }})</option>
                     {% endfor %}
                 </select>
             </div>
