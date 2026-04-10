@@ -119,12 +119,18 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        next_url = request.form.get('next_url')
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            return redirect(url_for('index'))
+            return redirect(next_url or url_for('index'))
         flash('Email ou senha inválidos.')
-    return render_template('login.html')
+        return redirect(url_for('login', next=next_url))
+        
+    next_url = request.args.get('next') or request.referrer or url_for('index')
+    if '/login' in next_url or '/register' in next_url:
+        next_url = url_for('index')
+    return render_template('login.html', next_url=next_url)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -132,14 +138,15 @@ def register():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        next_url = request.form.get('next_url')
 
         if User.query.filter_by(email=email).first():
             flash('Email já cadastrado.')
-            return redirect(url_for('register'))
+            return redirect(url_for('register', next=next_url))
 
         if User.query.filter_by(username=username).first():
             flash('Nome de usuário já está em uso. Por favor, escolha outro.')
-            return redirect(url_for('register'))
+            return redirect(url_for('register', next=next_url))
 
         new_user = User(
             username=username,
@@ -149,8 +156,12 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
-        return redirect(url_for('index'))
-    return render_template('register.html')
+        return redirect(next_url or url_for('index'))
+        
+    next_url = request.args.get('next') or request.referrer or url_for('index')
+    if '/login' in next_url or '/register' in next_url:
+        next_url = url_for('index')
+    return render_template('register.html', next_url=next_url)
 
 @app.route('/logout')
 @login_required

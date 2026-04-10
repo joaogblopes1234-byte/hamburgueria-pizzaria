@@ -6,6 +6,7 @@
 <div class="auth-container">
     <h2 style="text-align: center; margin-bottom: 2rem;">Acessar Conta</h2>
     <form method="POST">
+        <input type="hidden" name="next_url" value="{{ next_url }}">
         <div class="form-group">
             <label>Email</label>
             <input type="email" name="email" class="form-input" required placeholder="seu@email.com">
@@ -17,7 +18,7 @@
         <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar</button>
     </form>
     <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
-        Não tem uma conta? <a href="{{ url_for('register') }}" style="color: var(--primary); font-weight: bold;">Cadastre-se</a>
+        Não tem uma conta? <a href="{{ url_for('register', next=next_url) }}" style="color: var(--primary); font-weight: bold;">Cadastre-se</a>
     </p>
 </div>
 {% endblock %}

@@ -6,6 +6,7 @@
 <div class="auth-container">
     <h2 style="text-align: center; margin-bottom: 2rem;">Criar Conta</h2>
     <form method="POST">
+        <input type="hidden" name="next_url" value="{{ next_url }}">
         <div class="form-group">
             <label>Nome de Usuário</label>
             <input type="text" name="username" class="form-input" required placeholder="Como quer ser chamado?">
@@ -21,7 +22,7 @@
         <button type="submit" class="btn btn-primary" style="width: 100%;">Cadastrar</button>
     </form>
     <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
-        Já tem uma conta? <a href="{{ url_for('login') }}" style="color: var(--primary); font-weight: bold;">Entre aqui</a>
+        Já tem uma conta? <a href="{{ url_for('login', next=next_url) }}" style="color: var(--primary); font-weight: bold;">Entre aqui</a>
     </p>
 </div>
 {% endblock %}
