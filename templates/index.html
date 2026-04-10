@@ -65,7 +65,7 @@
                         <button class="add-to-cart" onclick="openCrustModal({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url or '/static/img/placeholder.jpg' }}')">
                             <i class="fas fa-plus"></i>
                         </button>
-                        {% elif cat_name in ['Hambúrguer', 'Combos'] %}
+                        {% elif cat_name not in ['Bebidas', 'Bordas Recheadas'] %}
                         <button class="add-to-cart" onclick="openDrinkModal({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url or '/static/img/placeholder.jpg' }}')">
                             <i class="fas fa-plus"></i>
                         </button>
@@ -114,6 +114,12 @@
                     <span style="font-weight: bold; color: var(--primary);">+ R$ 20,00</span>
                 </label>
             </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px; color: var(--dark);">Alguma observação?</label>
+                <textarea id="crust-obs" placeholder="Ex: Tirar cebola, sem milho, bem assada..." style="width: 100%; border-radius: 8px; border: 1px solid #ddd; padding: 10px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+            </div>
+
             <button class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 0.8rem;" onclick="confirmCrustSelection()">
                 Adicionar ao Carrinho
             </button>
@@ -145,6 +151,12 @@
                 </label>
                 {% endfor %}
             </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px; color: var(--dark);">Alguma observação no lanche?</label>
+                <textarea id="drink-obs" placeholder="Ex: Tirar cebola, sem molho..." style="width: 100%; border-radius: 8px; border: 1px solid #ddd; padding: 10px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+            </div>
+
             <button class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 0.8rem;" onclick="confirmDrinkSelection()">
                 Adicionar ao Carrinho
             </button>
@@ -209,6 +221,8 @@
         defaultRadio.parentElement.style.borderColor = 'var(--primary)';
         defaultRadio.parentElement.style.backgroundColor = '#fff8ee';
 
+        document.getElementById('crust-obs').value = '';
+
         document.getElementById('crust-modal').style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
@@ -245,6 +259,7 @@
         const crustPrice = parseFloat(selectedOption.value);
         const crustName = selectedOption.getAttribute('data-name');
         const crustIdOffset = parseInt(selectedOption.getAttribute('data-id-offset'));
+        const obs = document.getElementById('crust-obs').value;
         
         const finalName = currentPizzaForCrust.name + crustName;
         const finalPrice = currentPizzaForCrust.price + crustPrice;
@@ -253,7 +268,7 @@
         // Pizzas do mesmo sabor com bordas diferentes
         const newId = currentPizzaForCrust.id + crustIdOffset;
         
-        addToCart(newId, finalName, finalPrice, currentPizzaForCrust.image);
+        addToCart(newId, finalName, finalPrice, currentPizzaForCrust.image, obs);
         closeCrustModal();
     }
 
@@ -275,6 +290,8 @@
             defaultRadio.parentElement.style.borderColor = 'var(--primary)';
             defaultRadio.parentElement.style.backgroundColor = '#fff8ee';
         }
+
+        document.getElementById('drink-obs').value = '';
 
         document.getElementById('drink-modal').style.display = 'flex';
         document.body.style.overflow = 'hidden';
@@ -311,16 +328,17 @@
         
         const selectedOption = document.querySelector('input[name="drink_option"]:checked');
         const drinkId = selectedOption.getAttribute('data-id');
+        const obs = document.getElementById('drink-obs').value;
         
-        // Adiciona o item original (hambúrguer ou combo)
-        addToCart(currentBurgerForDrink.id, currentBurgerForDrink.name, currentBurgerForDrink.price, currentBurgerForDrink.image);
+        // Adiciona o item original com a observação
+        addToCart(currentBurgerForDrink.id, currentBurgerForDrink.name, currentBurgerForDrink.price, currentBurgerForDrink.image, obs);
 
         if (drinkId !== "0") {
             const drinkPrice = parseFloat(selectedOption.value);
             const drinkName = selectedOption.getAttribute('data-name');
             const drinkImage = selectedOption.getAttribute('data-image');
             
-            // Adiciona a bebida
+            // Adiciona a bebida (sem observação)
             setTimeout(() => {
                 addToCart(parseInt(drinkId), drinkName, drinkPrice, drinkImage);
             }, 300);

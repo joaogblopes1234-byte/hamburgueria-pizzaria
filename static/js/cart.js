@@ -15,14 +15,24 @@ function saveCart() {
     updateCartCount();
 }
 
-function addToCart(productId, name, price, image) {
-    const existingItem = cart.find(item => item.id === productId);
+function addToCart(productId, name, price, image, obs="") {
+    let finalName = name;
+    let cartId = productId;
+
+    if (obs && obs.trim() !== "") {
+        finalName = name + ` (Obs: ${obs.trim()})`;
+        // Create a unique temporary numeric-looking string or just replace spaces.
+        // Actually, we can just use a string ID.
+        cartId = productId + "_" + btoa(encodeURIComponent(obs.trim())).replace(/[=+-]/g, '');
+    }
+
+    const existingItem = cart.find(item => item.id == cartId);
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
         cart.push({
-            id: productId,
-            name: name,
+            id: cartId,
+            name: finalName,
             price: price,
             image: image,
             quantity: 1
@@ -53,13 +63,13 @@ function addToCart(productId, name, price, image) {
 }
 
 function removeFromCart(productId) {
-    cart = cart.filter(item => item.id !== productId);
+    cart = cart.filter(item => item.id != productId);
     saveCart();
     renderCart();
 }
 
 function updateQuantity(productId, delta) {
-    const item = cart.find(item => item.id === productId);
+    const item = cart.find(item => item.id == productId);
     if (item) {
         item.quantity += delta;
         if (item.quantity <= 0) {
@@ -96,11 +106,11 @@ function renderCart() {
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <div style="display: flex; align-items: center; background: #eee; border-radius: 20px; padding: 0.2rem 0.8rem;">
-                    <button onclick="updateQuantity(${item.id}, -1)" style="border: none; background: none; cursor: pointer; padding: 0.5rem;"><i class="fas fa-minus"></i></button>
+                    <button onclick="updateQuantity('${item.id}', -1)" style="border: none; background: none; cursor: pointer; padding: 0.5rem;"><i class="fas fa-minus"></i></button>
                     <span style="font-weight: bold; width: 30px; text-align: center;">${item.quantity}</span>
-                    <button onclick="updateQuantity(${item.id}, 1)" style="border: none; background: none; cursor: pointer; padding: 0.5rem;"><i class="fas fa-plus"></i></button>
+                    <button onclick="updateQuantity('${item.id}', 1)" style="border: none; background: none; cursor: pointer; padding: 0.5rem;"><i class="fas fa-plus"></i></button>
                 </div>
-                <button onclick="removeFromCart(${item.id})" style="border: none; background: none; color: #ff5252; cursor: pointer; font-size: 1.2rem;"><i class="fas fa-trash"></i></button>
+                <button onclick="removeFromCart('${item.id}')" style="border: none; background: none; color: #ff5252; cursor: pointer; font-size: 1.2rem;"><i class="fas fa-trash"></i></button>
             </div>
         </div>
     `).join('');
