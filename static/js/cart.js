@@ -369,15 +369,6 @@ function selectNeighborhood(name) {
 }
 
 function checkout() {
-    if (typeof isUserAuthenticated !== 'undefined' && !isUserAuthenticated) {
-        const loginModal = document.getElementById('checkout-login-modal');
-        if (loginModal) {
-            loginModal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            return;
-        }
-    }
-
     const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
     if (checkoutBtn) {
         checkoutBtn.disabled = true;
@@ -387,6 +378,8 @@ function checkout() {
     const address = document.getElementById('address')?.value;
     const neighborhoodInput = document.getElementById('neighborhood');
     const datalist = document.getElementById('neighborhoods-list');
+    const customerName = document.getElementById('customer_name')?.value;
+    const customerPhone = document.getElementById('customer_phone')?.value;
     
     let neighborhoodId = null;
     let neighborhoodName = null;
@@ -407,8 +400,19 @@ function checkout() {
         }
     }
     
+    // Validação de campos obrigatórios
     if (!address || !found) {
         alert('Por favor, preencha o endereço completo e selecione um bairro válido da lista.');
+        if (checkoutBtn) {
+            checkoutBtn.disabled = false;
+            checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
+        }
+        return;
+    }
+
+    // Se o campo de nome/telefone estiver visível (visitante), eles são obrigatórios
+    if (document.getElementById('customer_name') && (!customerName || !customerPhone)) {
+        alert('Por favor, preencha seu Nome e WhatsApp para finalizar o pedido.');
         if (checkoutBtn) {
             checkoutBtn.disabled = false;
             checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
@@ -435,7 +439,9 @@ function checkout() {
                 name: item.name 
             })),
             delivery_fee: deliveryFee,
-            total_price: total
+            total_price: total,
+            customer_name: customerName,
+            customer_phone: customerPhone
         })
     }).then(async response => {
         if (!response.ok) {
@@ -456,16 +462,14 @@ function checkout() {
         return response.json();
     }).then(data => {
         if (data.success) {
-            // Limpa carrinho local e estado na memória
-            localStorage.removeItem('gordin_cart');
-            localStorage.removeItem('gordin_address');
-            localStorage.removeItem('gordin_neighborhood');
-            cart = [];
-            updateCartCount(); 
+            // Gera string para WhatsApp ANTES de limpar o carrinho
+            const customerName = document.getElementById('customer_name')?.value;
+            let message = `*Pedido Gordin Lanches (Pedido #${data.order_id})*\n`;
+            if (customerName) {
+                message += `*Cliente:* ${customerName}\n`;
+            }
+            message += `\n*Itens:*\n`;
             
-            // Gera string para WhatsApp
-            let message = `*Pedido Gordin Lanches (Pedido #${data.order_id})*\n\n`;
-            message += `*Itens:*\n`;
             cart.forEach(item => {
                 message += `- ${item.quantity}x ${item.name} (R$ ${(item.price * item.quantity).toFixed(2)})\n`;
             });
@@ -475,6 +479,13 @@ function checkout() {
             message += `\n*Total:* R$ ${total.toFixed(2)}`;
             message += `\n\n*Endereço:* ${address}`;
             message += `\n*Bairro:* ${neighborhoodName}`;
+
+            // Limpa carrinho local e estado na memória AGORA
+            localStorage.removeItem('gordin_cart');
+            localStorage.removeItem('gordin_address');
+            localStorage.removeItem('gordin_neighborhood');
+            cart = [];
+            updateCartCount(); 
 
             const whatsappNumber = "5531994627746";
             const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;

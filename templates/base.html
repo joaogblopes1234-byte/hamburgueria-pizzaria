@@ -44,11 +44,6 @@
                     <span style="color: white; font-size: 0.9rem; font-weight: 500;">Olá, {{ current_user.username }}</span>
                     <a href="{{ url_for('logout') }}" title="Sair" style="color: white; text-decoration: none;"><i class="fas fa-sign-out-alt"></i></a>
                 </div>
-            {% else %}
-                <a href="{{ url_for('login') }}" class="nav-icon-link">
-                    <i class="fas fa-user"></i>
-                    <span>Entrar / Cadastrar</span>
-                </a>
             {% endif %}
             <a href="{{ url_for('cart') }}" class="nav-icon-link cart-icon">
                 <div style="position: relative;">
@@ -215,17 +210,10 @@
                 </a>
             </li>
             <li class="bottom-nav-item">
-                {% if current_user.is_authenticated %}
-                <a href="{{ url_for('logout') if request.path == '/profile' else '#' }}" onclick="openInfoModal()">
+                <a href="#" onclick="openInfoModal()">
                     <i class="fas fa-info-circle"></i>
                     <span>Info</span>
                 </a>
-                {% else %}
-                <a href="{{ url_for('login') }}">
-                    <i class="fas fa-user"></i>
-                    <span>Entrar</span>
-                </a>
-                {% endif %}
             </li>
         </ul>
     </nav>

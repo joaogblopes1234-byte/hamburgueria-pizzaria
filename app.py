@@ -32,6 +32,7 @@ def load_user(user_id):
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
+from flask_admin.theme import Bootstrap4Theme
 
 class AdminModelView(ModelView):
     can_export = True
@@ -45,12 +46,17 @@ class AdminModelView(ModelView):
         return redirect(url_for('login'))
 
 class UserView(AdminModelView):
-    column_labels = {'username': 'Nome de Usuário', 'email': 'E-mail', 'is_admin': 'Administrador'}
+    column_labels = {'username': 'Nome de Usuário', 'email': 'E-mail', 'is_admin': 'Administrador', 'password_hash': 'Senha Nova'}
     column_list = ['id', 'username', 'email', 'is_admin']
     column_searchable_list = ['username', 'email']
     column_filters = ['is_admin']
     column_editable_list = ['is_admin']
+    form_columns = ['username', 'email', 'password_hash', 'is_admin']
 
+    def on_model_change(self, form, model, is_created):
+        # Hash da senha se foi preenchida na criacao/edicao
+        if form.password_hash.data and not form.password_hash.data.startswith('pbkdf2:sha256'):
+            model.password_hash = generate_password_hash(form.password_hash.data, method='pbkdf2:sha256')
 class CategoryView(AdminModelView):
     column_labels = {'name': 'Nome da Categoria'}
     column_list = ['id', 'name']
@@ -77,21 +83,24 @@ class NeighborhoodView(AdminModelView):
     column_editable_list = ['delivery_fee']
 
 class OrderView(AdminModelView):
+    inline_models = [OrderItem]
+    column_list = ['id', 'user', 'customer_name', 'customer_phone', 'neighborhood', 'address', 'total_price', 'status', 'date_ordered']
+    column_searchable_list = ['address', 'status', 'customer_name']
     column_labels = {
-        'user': 'Cliente',
+        'user': 'Usuário (se logado)',
+        'customer_name': 'Cliente',
+        'customer_phone': 'WhatsApp',
         'total_price': 'Valor Total (R$)',
         'status': 'Status do Pedido',
         'address': 'Endereço de Entrega',
         'date_ordered': 'Data e Hora',
         'neighborhood': 'Bairro'
     }
-    column_list = ['id', 'user', 'total_price', 'status', 'date_ordered']
-    column_searchable_list = ['address', 'status']
     column_filters = ['status', 'date_ordered', 'total_price']
     column_editable_list = ['status']
     column_default_sort = ('date_ordered', True)
 
-admin = Admin(app, name='Painel de Gestão', template_mode='bootstrap3')
+admin = Admin(app, name='Painel de Gestão', theme=Bootstrap4Theme())
 admin.add_link(MenuLink(name='← Voltar ao Site', category='', url='/'))
 admin.add_view(OrderView(Order, db.session, name='Pedidos'))
 admin.add_view(CategoryView(Category, db.session, name='Categorias', category='Catalogo'))
@@ -132,36 +141,6 @@ def login():
         next_url = url_for('index')
     return render_template('login.html', next_url=next_url)
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form.get('username', '').strip()
-        email = request.form.get('email', '').strip().lower()
-        password = request.form.get('password', '').strip()
-        next_url = request.form.get('next_url')
-
-        if User.query.filter_by(email=email).first():
-            flash('Email já cadastrado.')
-            return redirect(url_for('register', next=next_url))
-
-        if User.query.filter_by(username=username).first():
-            flash('Nome de usuário já está em uso. Por favor, escolha outro.')
-            return redirect(url_for('register', next=next_url))
-
-        new_user = User(
-            username=username,
-            email=email,
-            password_hash=generate_password_hash(password)
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        login_user(new_user)
-        return redirect(next_url or url_for('index'))
-        
-    next_url = request.args.get('next') or request.referrer or url_for('index')
-    if '/login' in next_url or '/register' in next_url:
-        next_url = url_for('index')
-    return render_template('register.html', next_url=next_url)
 
 @app.route('/logout')
 @login_required
@@ -187,7 +166,6 @@ def api_products():
     } for p in products])
 
 @app.route('/api/checkout', methods=['POST'])
-@login_required
 def api_checkout():
     try:
         data = request.json
@@ -199,10 +177,16 @@ def api_checkout():
         delivery_fee = data.get('delivery_fee', 0)
         total_price = data.get('total_price', 0)
         items = data.get('items', [])
+        customer_name = data.get('customer_name')
+        customer_phone = data.get('customer_phone')
         
         if not address or not neighborhood_id or not items:
             return jsonify({'success': False, 'message': 'Endereço, bairro ou itens faltando.'}), 400
             
+        # Para visitantes, nome e fone são obrigatórios se não logado
+        if not current_user.is_authenticated and (not customer_name or not customer_phone):
+            return jsonify({'success': False, 'message': 'Nome e WhatsApp são obrigatórios para finalizar o pedido.'}), 400
+
         # Extrair observações do nome do item para salvar no endereço para o painel admin
         observations = [f"{item['quantity']}x {item['name']}" for item in items if '(Obs:' in item['name']]
         final_address = address
@@ -210,7 +194,9 @@ def api_checkout():
             final_address += f" | NOTAS: {', '.join(observations)}"
 
         new_order = Order(
-            user_id=current_user.id,
+            user_id=current_user.id if current_user.is_authenticated else None,
+            customer_name=customer_name or (current_user.username if current_user.is_authenticated else "Visitante"),
+            customer_phone=customer_phone or "",
             address=final_address,
             neighborhood_id=neighborhood_id,
             delivery_fee=delivery_fee,

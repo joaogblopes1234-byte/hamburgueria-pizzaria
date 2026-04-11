@@ -10,6 +10,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
+    
+    def __repr__(self):
+        return f"{self.username} ({self.email})"
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,6 +31,9 @@ class Product(db.Model):
     category = db.relationship('Category', backref='products')
     is_available = db.Column(db.Boolean, default=True)
 
+    def __repr__(self):
+        return self.name
+
 class Neighborhood(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
@@ -40,7 +46,9 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_ordered = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='Pending') # Pending, Preparing, Out for Delivery, Completed, Cancelled
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) # Alterado para nullable=True para checkout de visitante
+    customer_name = db.Column(db.String(100), nullable=True) # Nome para visitante
+    customer_phone = db.Column(db.String(20), nullable=True) # WhatsApp para visitante
     total_price = db.Column(db.Float, nullable=False)
     delivery_fee = db.Column(db.Float, nullable=False)
     address = db.Column(db.String(255), nullable=False)
