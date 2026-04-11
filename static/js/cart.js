@@ -4,9 +4,33 @@ let cart = JSON.parse(localStorage.getItem('gordin_cart')) || [];
 
 function updateCartCount() {
     const countElement = document.getElementById('cart-count');
+    const mobileCountElement = document.getElementById('mobile-cart-count');
+    const floatingBar = document.getElementById('floating-cart-bar');
+    const floatingCount = document.getElementById('floating-cart-count');
+    const floatingTotal = document.getElementById('floating-cart-total');
+    
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
     if (countElement) {
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
         countElement.innerText = totalItems;
+    }
+
+    if (mobileCountElement) {
+        mobileCountElement.innerText = totalItems;
+        mobileCountElement.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
+
+    if (floatingBar) {
+        // Show floating bar only if there are items AND we are NOT on the cart page
+        const isCartPage = window.location.pathname.includes('/cart');
+        if (totalItems > 0 && !isCartPage) {
+            floatingBar.style.display = 'flex';
+            if (floatingCount) floatingCount.innerText = totalItems;
+            if (floatingTotal) floatingTotal.innerText = `R$ ${totalPrice.toFixed(2)}`;
+        } else {
+            floatingBar.style.display = 'none';
+        }
     }
 }
 
