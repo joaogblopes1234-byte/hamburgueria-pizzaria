@@ -254,23 +254,34 @@ def init_db():
         db.session.add_all([hamburguer, pizza_g, pizza_m, pizza_p, pizza_doce, bordas, combos, bebidas])
         db.session.flush()  # gera os IDs antes de criar os produtos
 
-        # Bairros
+        # Bairros (João Monlevade)
         db.session.add_all([
-            Neighborhood(name='Carneirinhos',    delivery_fee=5.0),
-            Neighborhood(name='Vila Tanque',     delivery_fee=7.0),
-            Neighborhood(name='Loanda',          delivery_fee=6.0),
-            Neighborhood(name='Cruzeiro Celeste',delivery_fee=8.0),
-            Neighborhood(name='Belmonte',        delivery_fee=6.5),
-            Neighborhood(name='Satélite',        delivery_fee=7.0),
-            Neighborhood(name='Boa Vista',       delivery_fee=7.0),
-            Neighborhood(name='Nova Esperança',  delivery_fee=7.0),
-            Neighborhood(name='Sion',            delivery_fee=7.0),
-            Neighborhood(name='José Elói',       delivery_fee=7.0),
-            Neighborhood(name='República',       delivery_fee=7.0),
-            Neighborhood(name='Vila Afonso',     delivery_fee=7.0),
-            Neighborhood(name='Vila 7 de Setembro', delivery_fee=7.0),
-            Neighborhood(name='Vila Lopes',      delivery_fee=7.0),
-            Neighborhood(name='Areia Preta',     delivery_fee=7.0),
+            Neighborhood(name='Areia Preta',      delivery_fee=7.0),
+            Neighborhood(name='Baú',              delivery_fee=7.0),
+            Neighborhood(name='Belmonte',         delivery_fee=7.0),
+            Neighborhood(name='Carneirinhos',     delivery_fee=5.0),
+            Neighborhood(name='Centro',           delivery_fee=7.0),
+            Neighborhood(name='Cruzeiro Celeste', delivery_fee=8.0),
+            Neighborhood(name='Distrito Industrial', delivery_fee=10.0),
+            Neighborhood(name='Estrela Dalva',    delivery_fee=7.0),
+            Neighborhood(name='José Elói',        delivery_fee=7.0),
+            Neighborhood(name='Laranjeira',       delivery_fee=7.0),
+            Neighborhood(name='Loanda',           delivery_fee=6.0),
+            Neighborhood(name='Lourdes',          delivery_fee=7.0),
+            Neighborhood(name='Novo Cruzeiro',    delivery_fee=7.0),
+            Neighborhood(name='Palmares',         delivery_fee=7.0),
+            Neighborhood(name='Planalto',         delivery_fee=7.0),
+            Neighborhood(name='República',        delivery_fee=7.0),
+            Neighborhood(name='Santa Bárbara',    delivery_fee=7.0),
+            Neighborhood(name='Santa Cecília',    delivery_fee=7.0),
+            Neighborhood(name='Santo Hipólito',   delivery_fee=7.0),
+            Neighborhood(name='Satélite',         delivery_fee=7.0),
+            Neighborhood(name='Sion',             delivery_fee=7.0),
+            Neighborhood(name='Teresópolis',      delivery_fee=7.0),
+            Neighborhood(name='Vila Tanque',      delivery_fee=7.0),
+            Neighborhood(name='Vila São Geraldo', delivery_fee=7.0),
+            Neighborhood(name='Vila Santa Cecília', delivery_fee=7.0),
+            Neighborhood(name='Vila Trabalhista',  delivery_fee=7.0),
         ])
 
         # Usuário admin
