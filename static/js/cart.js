@@ -151,10 +151,10 @@ function renderCart() {
     let isValidNeighborhood = false;
 
     if (neighborhoodInput && datalist) {
-        const value = neighborhoodInput.value.trim();
+        const value = neighborhoodInput.value.trim().toLowerCase();
         const options = datalist.options;
         for (let i = 0; i < options.length; i++) {
-            if (options[i].value === value) {
+            if (options[i].value.toLowerCase() === value) {
                 deliveryFee = parseFloat(options[i].dataset.fee || 0);
                 isValidNeighborhood = true;
                 break;
@@ -362,12 +362,12 @@ function checkout() {
     let found = false;
 
     if (neighborhoodInput && datalist) {
-        const value = neighborhoodInput.value.trim();
+        const value = neighborhoodInput.value.trim().toLowerCase();
         const options = datalist.options;
         for (let i = 0; i < options.length; i++) {
-            if (options[i].value === value) {
+            if (options[i].value.toLowerCase() === value) {
                 neighborhoodId = options[i].dataset.id;
-                neighborhoodName = options[i].value;
+                neighborhoodName = options[i].value; // Nome oficial
                 deliveryFee = parseFloat(options[i].dataset.fee || 0);
                 found = true;
                 break;

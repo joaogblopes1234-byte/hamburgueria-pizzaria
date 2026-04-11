@@ -265,7 +265,7 @@ def init_db():
             Neighborhood(name='Distrito Industrial', delivery_fee=10.0),
             Neighborhood(name='Estrela Dalva',    delivery_fee=7.0),
             Neighborhood(name='José Elói',        delivery_fee=7.0),
-            Neighborhood(name='Laranjeira',       delivery_fee=7.0),
+            Neighborhood(name='Laranjeiras',      delivery_fee=7.0),
             Neighborhood(name='Loanda',           delivery_fee=6.0),
             Neighborhood(name='Lourdes',          delivery_fee=7.0),
             Neighborhood(name='Novo Cruzeiro',    delivery_fee=7.0),
