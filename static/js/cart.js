@@ -146,9 +146,29 @@ function renderCart() {
     const deliveryFee = neighborhoodSelect ? parseFloat(neighborhoodSelect.options[neighborhoodSelect.selectedIndex]?.dataset.fee || 0) : 0;
     const total = subtotal + deliveryFee;
 
-    document.getElementById('subtotal').innerText = `R$ ${subtotal.toFixed(2)}`;
-    document.getElementById('delivery-fee').innerText = `R$ ${deliveryFee.toFixed(2)}`;
-    document.getElementById('total').innerText = `R$ ${total.toFixed(2)}`;
+    const subtotalEl = document.getElementById('subtotal');
+    const deliveryFeeEl = document.getElementById('delivery-fee');
+    const totalEl = document.getElementById('total');
+
+    if (subtotalEl) subtotalEl.innerText = `R$ ${subtotal.toFixed(2)}`;
+    
+    if (deliveryFeeEl) {
+        const oldFee = deliveryFeeEl.innerText;
+        deliveryFeeEl.innerText = `R$ ${deliveryFee.toFixed(2)}`;
+        if (oldFee !== `R$ ${deliveryFee.toFixed(2)}` && oldFee !== "R$ 0.00") {
+            deliveryFeeEl.classList.add('price-updated');
+            setTimeout(() => deliveryFeeEl.classList.remove('price-updated'), 800);
+        }
+    }
+
+    if (totalEl) {
+        const oldTotal = totalEl.innerText;
+        totalEl.innerText = `R$ ${total.toFixed(2)}`;
+        if (oldTotal !== `R$ ${total.toFixed(2)}` && oldTotal !== "R$ 0.00") {
+            totalEl.classList.add('price-updated');
+            setTimeout(() => totalEl.classList.remove('price-updated'), 800);
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -157,19 +177,113 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const neighborhoodSelect = document.getElementById('neighborhood');
     const addressInput = document.getElementById('address');
+    const cepInput = document.getElementById('cep');
+    const btnFetchCep = document.getElementById('btn-fetch-cep');
+    const cepStatus = document.getElementById('cep-status');
 
-    // Carregar endereço salvo
+    // Carregar dados salvos
     const savedAddress = localStorage.getItem('gordin_address');
     const savedNeighborhood = localStorage.getItem('gordin_neighborhood');
+    const savedCep = localStorage.getItem('gordin_cep');
 
     if (savedAddress && addressInput) {
         addressInput.value = savedAddress;
+    }
+
+    if (savedCep && cepInput) {
+        cepInput.value = savedCep;
     }
 
     if (savedNeighborhood && neighborhoodSelect) {
         neighborhoodSelect.value = savedNeighborhood;
         // Forçar re-render para calcular taxa de entrega corretamente
         renderCart();
+    }
+
+    // Lógica de CEP
+    if (cepInput) {
+        cepInput.addEventListener('input', (e) => {
+            const cep = e.target.value.replace(/\D/g, '');
+            if (cep.length === 8) {
+                // Formata CEP enquanto digita
+                e.target.value = cep.substring(0, 5) + '-' + cep.substring(5);
+                fetchAddressByCep(cep);
+            }
+            localStorage.setItem('gordin_cep', e.target.value);
+        });
+    }
+
+    if (btnFetchCep) {
+        btnFetchCep.addEventListener('click', () => {
+            const cep = cepInput.value.replace(/\D/g, '');
+            if (cep.length === 8) {
+                fetchAddressByCep(cep);
+            } else {
+                updateCepStatus('CEP inválido. Digite 8 números.', 'error');
+            }
+        });
+    }
+
+    async function fetchAddressByCep(cep) {
+        if (!cepStatus) return;
+        
+        updateCepStatus('Buscando endereço... <i class="fas fa-spinner fa-spin"></i>', 'loading');
+        
+        try {
+            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const data = await response.json();
+            
+            if (data.erro) {
+                updateCepStatus('CEP não encontrado.', 'error');
+                return;
+            }
+            
+            // Preenche endereço
+            const fullAddress = `${data.logradouro}${data.logradouro ? ', ' : ''}${data.bairro}`;
+            if (addressInput) {
+                addressInput.value = fullAddress;
+                localStorage.setItem('gordin_address', fullAddress);
+            }
+            
+            // Tenta selecionar bairro automaticamente
+            let found = false;
+            if (neighborhoodSelect && data.bairro) {
+                const searchBairro = data.bairro.toLowerCase().trim();
+                
+                for (let i = 0; i < neighborhoodSelect.options.length; i++) {
+                    const opt = neighborhoodSelect.options[i];
+                    const optTitle = opt.text.toLowerCase();
+                    const optDataName = opt.dataset.name ? opt.dataset.name.toLowerCase() : "";
+                    
+                    if (optDataName === searchBairro || optTitle.includes(searchBairro)) {
+                        neighborhoodSelect.selectedIndex = i;
+                        localStorage.setItem('gordin_neighborhood', opt.value);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (found) {
+                updateCepStatus('Endereço e bairro localizados!', 'success');
+                renderCart(); // Atualiza taxas
+            } else {
+                updateCepStatus('Endereço preenchido, mas bairro não encontrado na lista de entregas. Selecione manualmente.', 'warning');
+                renderCart();
+            }
+            
+        } catch (error) {
+            updateCepStatus('Erro ao buscar CEP. Verifique sua conexão.', 'error');
+        }
+    }
+
+    function updateCepStatus(message, type) {
+        if (!cepStatus) return;
+        cepStatus.innerHTML = message;
+        if (type === 'error') cepStatus.style.color = '#ff5252';
+        else if (type === 'success') cepStatus.style.color = '#2ecc71';
+        else if (type === 'warning') cepStatus.style.color = '#f1c40f';
+        else cepStatus.style.color = '#666';
     }
 
     if (neighborhoodSelect) {

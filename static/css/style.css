@@ -735,6 +735,34 @@ footer {
     border-color: var(--primary);
 }
 
+#cep-status {
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+#total, #delivery-fee, #subtotal {
+    transition: all 0.5s ease;
+}
+
+.price-updated {
+    animation: priceFlash 0.8s ease;
+}
+
+@keyframes priceFlash {
+    0% { transform: scale(1); color: var(--primary); }
+    50% { transform: scale(1.1); color: var(--secondary); }
+    100% { transform: scale(1); color: var(--primary); }
+}
+
+#btn-fetch-cep {
+    transition: 0.3s;
+}
+
+#btn-fetch-cep:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Responsiveness */
 /* Bottom Navigation Bar (Mobile Only) */
 .bottom-nav {
