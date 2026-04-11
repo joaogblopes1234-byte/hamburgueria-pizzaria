@@ -117,8 +117,8 @@ def menu():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '').strip()
         next_url = request.form.get('next_url')
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password_hash, password):
@@ -135,9 +135,9 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '').strip()
         next_url = request.form.get('next_url')
 
         if User.query.filter_by(email=email).first():
