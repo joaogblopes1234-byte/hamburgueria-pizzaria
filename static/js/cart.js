@@ -184,28 +184,11 @@ function renderCart() {
             if (neighborhoodStatus) neighborhoodStatus.innerText = "";
         }
         
-        // Bloqueio do botão com mensagens claras
+        // Sempre habilitado para permitir que o usuário veja o que falta ao clicar (ou peça login)
         if (checkoutBtn) {
-            if (value === "") {
-                checkoutBtn.disabled = true;
-                checkoutBtn.innerHTML = 'Preencha o Bairro <i class="fas fa-map-marker-alt"></i>';
-                checkoutBtn.style.opacity = "0.7";
-            } else if (!isValidNeighborhood) {
-                checkoutBtn.disabled = true;
-                checkoutBtn.innerHTML = 'Bairro não atendido <i class="fas fa-exclamation-triangle"></i>';
-                checkoutBtn.style.opacity = "0.7";
-                if (neighborhoodStatus && neighborhoodStatus.innerText === "") {
-                    neighborhoodStatus.innerText = "Este bairro não está em nossa lista de entregas.";
-                }
-            } else if (!addressInput || addressInput.value.length < 5) {
-                checkoutBtn.disabled = true;
-                checkoutBtn.innerHTML = 'Preencha o Endereço <i class="fas fa-home"></i>';
-                checkoutBtn.style.opacity = "0.7";
-            } else {
-                checkoutBtn.disabled = false;
-                checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
-                checkoutBtn.style.opacity = "1";
-            }
+            checkoutBtn.disabled = false;
+            checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
+            checkoutBtn.style.opacity = "1";
         }
     }
 
