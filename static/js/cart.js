@@ -3,6 +3,9 @@
 let cart = JSON.parse(localStorage.getItem('gordin_cart')) || [];
 
 function updateCartCount() {
+    // Sincroniza a variável cart com o localStorage para garantir dados frescos
+    cart = JSON.parse(localStorage.getItem('gordin_cart')) || [];
+    
     const countElement = document.getElementById('cart-count');
     const mobileCountElement = document.getElementById('mobile-cart-count');
     const floatingBar = document.getElementById('floating-cart-bar');
@@ -222,7 +225,15 @@ function renderCart() {
 document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
     renderCart();
+});
 
+// Garante que o contador de itens e a barra flutuante sejam reinicializados se o usuário usar o botão "Voltar"
+window.addEventListener('pageshow', (event) => {
+    updateCartCount();
+    renderCart();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
     const neighborhoodSelect = document.getElementById('neighborhood');
     const addressInput = document.getElementById('address');
     const cepInput = document.getElementById('cep');
@@ -445,10 +456,12 @@ function checkout() {
         return response.json();
     }).then(data => {
         if (data.success) {
-            // Limpa carrinho local antes de abrir
+            // Limpa carrinho local e estado na memória
             localStorage.removeItem('gordin_cart');
             localStorage.removeItem('gordin_address');
             localStorage.removeItem('gordin_neighborhood');
+            cart = [];
+            updateCartCount(); 
             
             // Gera string para WhatsApp
             let message = `*Pedido Gordin Lanches (Pedido #${data.order_id})*\n\n`;
