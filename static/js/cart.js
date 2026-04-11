@@ -142,8 +142,44 @@ function renderCart() {
 
     // Calculate Totals
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const neighborhoodSelect = document.getElementById('neighborhood');
-    const deliveryFee = neighborhoodSelect ? parseFloat(neighborhoodSelect.options[neighborhoodSelect.selectedIndex]?.dataset.fee || 0) : 0;
+    const neighborhoodInput = document.getElementById('neighborhood');
+    const datalist = document.getElementById('neighborhoods-list');
+    const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
+    const neighborhoodStatus = document.getElementById('neighborhood-status');
+    
+    let deliveryFee = 0;
+    let isValidNeighborhood = false;
+
+    if (neighborhoodInput && datalist) {
+        const value = neighborhoodInput.value.trim();
+        const options = datalist.options;
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].value === value) {
+                deliveryFee = parseFloat(options[i].dataset.fee || 0);
+                isValidNeighborhood = true;
+                break;
+            }
+        }
+        
+        // Bloqueio do botão e avisos
+        if (value === "") {
+            if (neighborhoodStatus) neighborhoodStatus.innerText = "";
+            if (checkoutBtn) checkoutBtn.disabled = true;
+        } else if (!isValidNeighborhood) {
+            if (neighborhoodStatus) neighborhoodStatus.innerText = "Bairro não atendido ou erro de digitação. Escolha um da lista!";
+            if (checkoutBtn) {
+                checkoutBtn.disabled = true;
+                checkoutBtn.style.opacity = "0.5";
+            }
+        } else {
+            if (neighborhoodStatus) neighborhoodStatus.innerText = "";
+            if (checkoutBtn) {
+                checkoutBtn.disabled = false;
+                checkoutBtn.style.opacity = "1";
+            }
+        }
+    }
+
     const total = subtotal + deliveryFee;
 
     const subtotalEl = document.getElementById('subtotal');
@@ -247,16 +283,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Tenta selecionar bairro automaticamente
             let found = false;
-            if (neighborhoodSelect && data.bairro) {
+            if (neighborhoodInput && datalist && data.bairro) {
                 const searchBairro = data.bairro.toLowerCase().trim();
+                const options = datalist.options;
                 
-                for (let i = 0; i < neighborhoodSelect.options.length; i++) {
-                    const opt = neighborhoodSelect.options[i];
-                    const optTitle = opt.text.toLowerCase();
-                    const optDataName = opt.dataset.name ? opt.dataset.name.toLowerCase() : "";
+                for (let i = 0; i < options.length; i++) {
+                    const opt = options[i];
+                    const optName = opt.value.toLowerCase();
                     
-                    if (optDataName === searchBairro || optTitle.includes(searchBairro)) {
-                        neighborhoodSelect.selectedIndex = i;
+                    if (optName === searchBairro || optName.includes(searchBairro)) {
+                        neighborhoodInput.value = opt.value; // Preenche com o nome oficial
                         localStorage.setItem('gordin_neighborhood', opt.value);
                         found = true;
                         break;
@@ -286,9 +322,9 @@ document.addEventListener('DOMContentLoaded', () => {
         else cepStatus.style.color = '#666';
     }
 
-    if (neighborhoodSelect) {
-        neighborhoodSelect.addEventListener('change', () => {
-            localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
+    if (neighborhoodInput) {
+        neighborhoodInput.addEventListener('input', () => {
+            localStorage.setItem('gordin_neighborhood', neighborhoodInput.value);
             renderCart();
         });
     }
@@ -317,16 +353,30 @@ function checkout() {
     }
 
     const address = document.getElementById('address')?.value;
-    const neighborhoodSelect = document.getElementById('neighborhood');
-    const neighborhoodId = neighborhoodSelect?.value;
+    const neighborhoodInput = document.getElementById('neighborhood');
+    const datalist = document.getElementById('neighborhoods-list');
     
-    // Pegar o NOME puro do bairro (sem o R$)
-    const selectedOption = neighborhoodSelect?.options[neighborhoodSelect.selectedIndex];
-    const neighborhoodName = selectedOption?.dataset.name || selectedOption?.text;
-    const deliveryFee = selectedOption ? parseFloat(selectedOption.dataset.fee || 0) : 0;
+    let neighborhoodId = null;
+    let neighborhoodName = null;
+    let deliveryFee = 0;
+    let found = false;
+
+    if (neighborhoodInput && datalist) {
+        const value = neighborhoodInput.value.trim();
+        const options = datalist.options;
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].value === value) {
+                neighborhoodId = options[i].dataset.id;
+                neighborhoodName = options[i].value;
+                deliveryFee = parseFloat(options[i].dataset.fee || 0);
+                found = true;
+                break;
+            }
+        }
+    }
     
-    if (!address || !neighborhoodId) {
-        alert('Por favor, preencha o endereço e selecione o bairro.');
+    if (!address || !found) {
+        alert('Por favor, preencha o endereço completo e selecione um bairro válido da lista.');
         if (checkoutBtn) {
             checkoutBtn.disabled = false;
             checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';

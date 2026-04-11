@@ -24,13 +24,14 @@
             </div>
 
             <div class="form-group">
-                <label for="neighborhood">Selecione seu Bairro</label>
-                <select id="neighborhood" class="form-input">
-                    <option value="" disabled selected>Escolha um bairro...</option>
+                <label for="neighborhood">Selecione ou Digite seu Bairro</label>
+                <input type="text" id="neighborhood" list="neighborhoods-list" class="form-input" placeholder="Comece a digitar o bairro...">
+                <datalist id="neighborhoods-list">
                     {% for n in neighborhoods %}
-                    <option value="{{ n.id }}" data-fee="{{ n.delivery_fee }}" data-name="{{ n.name }}">{{ n.name }} (R$ {{ "%.2f"|format(n.delivery_fee) }})</option>
+                    <option value="{{ n.name }}" data-id="{{ n.id }}" data-fee="{{ n.delivery_fee }}"></option>
                     {% endfor %}
-                </select>
+                </datalist>
+                <small id="neighborhood-status" style="display: block; margin-top: 5px; color: #ff5252;"></small>
             </div>
             
             <div class="form-group">
