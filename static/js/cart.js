@@ -146,35 +146,64 @@ function renderCart() {
     const datalist = document.getElementById('neighborhoods-list');
     const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
     const neighborhoodStatus = document.getElementById('neighborhood-status');
+    const addressInput = document.getElementById('address');
     
     let deliveryFee = 0;
     let isValidNeighborhood = false;
+    let matchedName = "";
 
     if (neighborhoodInput && datalist) {
-        const value = neighborhoodInput.value.trim().toLowerCase();
+        let value = neighborhoodInput.value.trim().toLowerCase();
         const options = datalist.options;
+        
+        // 1. Tentar match exato (ignora case)
         for (let i = 0; i < options.length; i++) {
             if (options[i].value.toLowerCase() === value) {
                 deliveryFee = parseFloat(options[i].dataset.fee || 0);
                 isValidNeighborhood = true;
+                matchedName = options[i].value;
                 break;
             }
         }
-        
-        // Bloqueio do botão e avisos
-        if (value === "") {
-            if (neighborhoodStatus) neighborhoodStatus.innerText = "";
-            if (checkoutBtn) checkoutBtn.disabled = true;
-        } else if (!isValidNeighborhood) {
-            if (neighborhoodStatus) neighborhoodStatus.innerText = "Bairro não atendido ou erro de digitação. Escolha um da lista!";
-            if (checkoutBtn) {
-                checkoutBtn.disabled = true;
-                checkoutBtn.style.opacity = "0.5";
+
+        // 2. Se não encontrou match exato, tentar match parcial ou sugerir
+        if (!isValidNeighborhood && value.length > 3) {
+            for (let i = 0; i < options.length; i++) {
+                const optName = options[i].value.toLowerCase();
+                // Verifica se começa igual ou se é plural/singular (Laranjeira vs Laranjeiras)
+                if (optName.startsWith(value) || value.startsWith(optName)) {
+                    // Sugere o bairro correto se a diferença for pequena
+                    if (Math.abs(optName.length - value.length) <= 2) {
+                        neighborhoodStatus.innerHTML = `Você quis dizer <strong>${options[i].value}</strong>? <button onclick="selectNeighborhood('${options[i].value}')" style="background: var(--secondary); border: none; padding: 2px 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin-left: 5px;">Sim</button>`;
+                        neighborhoodStatus.style.color = "var(--primary)";
+                        break;
+                    }
+                }
             }
-        } else {
+        } else if (isValidNeighborhood) {
             if (neighborhoodStatus) neighborhoodStatus.innerText = "";
-            if (checkoutBtn) {
+        }
+        
+        // Bloqueio do botão com mensagens claras
+        if (checkoutBtn) {
+            if (value === "") {
+                checkoutBtn.disabled = true;
+                checkoutBtn.innerHTML = 'Preencha o Bairro <i class="fas fa-map-marker-alt"></i>';
+                checkoutBtn.style.opacity = "0.7";
+            } else if (!isValidNeighborhood) {
+                checkoutBtn.disabled = true;
+                checkoutBtn.innerHTML = 'Bairro não atendido <i class="fas fa-exclamation-triangle"></i>';
+                checkoutBtn.style.opacity = "0.7";
+                if (neighborhoodStatus && neighborhoodStatus.innerText === "") {
+                    neighborhoodStatus.innerText = "Este bairro não está em nossa lista de entregas.";
+                }
+            } else if (!addressInput || addressInput.value.length < 5) {
+                checkoutBtn.disabled = true;
+                checkoutBtn.innerHTML = 'Preencha o Endereço <i class="fas fa-home"></i>';
+                checkoutBtn.style.opacity = "0.7";
+            } else {
                 checkoutBtn.disabled = false;
+                checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
                 checkoutBtn.style.opacity = "1";
             }
         }
@@ -282,29 +311,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // Tenta selecionar bairro automaticamente
-            let found = false;
+            let foundMatch = null;
             if (neighborhoodInput && datalist && data.bairro) {
                 const searchBairro = data.bairro.toLowerCase().trim();
                 const options = datalist.options;
                 
                 for (let i = 0; i < options.length; i++) {
-                    const opt = options[i];
-                    const optName = opt.value.toLowerCase();
-                    
-                    if (optName === searchBairro || optName.includes(searchBairro)) {
-                        neighborhoodInput.value = opt.value; // Preenche com o nome oficial
-                        localStorage.setItem('gordin_neighborhood', opt.value);
-                        found = true;
+                    const optName = options[i].value.toLowerCase();
+                    // Match exato ou flexível para singular/plural
+                    if (optName === searchBairro || optName.includes(searchBairro) || searchBairro.includes(optName)) {
+                        foundMatch = options[i].value;
                         break;
                     }
                 }
             }
             
-            if (found) {
+            if (foundMatch) {
+                neighborhoodInput.value = foundMatch;
+                localStorage.setItem('gordin_neighborhood', foundMatch);
                 updateCepStatus('Endereço e bairro localizados!', 'success');
-                renderCart(); // Atualiza taxas
+                renderCart();
             } else {
-                updateCepStatus('Endereço preenchido, mas bairro não encontrado na lista de entregas. Selecione manualmente.', 'warning');
+                updateCepStatus('Endereço preenchido, mas bairro não encontrado na lista. Selecione manualmente.', 'warning');
                 renderCart();
             }
             
@@ -332,9 +360,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addressInput) {
         addressInput.addEventListener('input', () => {
             localStorage.setItem('gordin_address', addressInput.value);
+            renderCart(); // Para atualizar o estado do botão (preenchido/não preenchido)
         });
     }
 });
+
+function selectNeighborhood(name) {
+    const neighborhoodInput = document.getElementById('neighborhood');
+    if (neighborhoodInput) {
+        neighborhoodInput.value = name;
+        localStorage.setItem('gordin_neighborhood', name);
+        renderCart();
+    }
+}
 
 function checkout() {
     if (typeof isUserAuthenticated !== 'undefined' && !isUserAuthenticated) {
