@@ -175,15 +175,13 @@ def orders():
 @app.route('/identify_orders', methods=['POST'])
 def identify_orders():
     nome = request.form.get('nome', '').strip().title()
-    sobrenome = request.form.get('sobrenome', '').strip().title()
     telefone = request.form.get('telefone', '').strip()
     
-    if not nome or not sobrenome or not telefone:
+    if not nome or not telefone:
         flash('Por favor, preencha todos os campos.')
         return redirect(url_for('orders'))
     
-    full_name = f"{nome} {sobrenome}"
-    session['guest_name'] = full_name
+    session['guest_name'] = nome
     session['guest_phone'] = telefone
     return redirect(url_for('orders'))
 
