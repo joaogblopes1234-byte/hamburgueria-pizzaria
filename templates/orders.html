@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Meus Pedidos - Gordin Lanches{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 5rem; min-height: 70vh;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem; font-weight: 800; color: var(--dark);">Meus <span style="color: var(--primary);">Pedidos</span></h1>
+        <a href="{{ url_for('index') }}" class="contact-pill" style="text-decoration: none;">
+            <i class="fas fa-plus"></i> Novo Pedido
+        </a>
+    </div>
+
+    {% if not orders %}
+    <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 20px; box-shadow: var(--shadow);">
+        <div style="font-size: 4rem; color: #eee; margin-bottom: 1.5rem;">
+            <i class="fas fa-receipt"></i>
+        </div>
+        <h2 style="color: #444; margin-bottom: 1rem;">Você ainda não fez nenhum pedido.</h2>
+        <p style="color: #888; margin-bottom: 2rem;">Que tal experimentar um de nossos deliciosos hambúrgueres agora?</p>
+        <a href="{{ url_for('index') }}" class="add-to-cart" style="position: static; padding: 0.8rem 2rem; border-radius: 30px; width: auto; height: auto; text-decoration: none; font-size: 1rem; display: inline-flex; gap: 10px;">
+            <i class="fas fa-hamburger"></i> Ver Cardápio
+        </a>
+    </div>
+    {% else %}
+    <div style="display: grid; gap: 1.5rem;">
+        {% for order in orders %}
+        <div class="product-card" style="display: block; padding: 0; overflow: visible;">
+            <div style="padding: 1.5rem; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; background: #fafafa; border-radius: 20px 20px 0 0;">
+                <div>
+                    <span style="font-size: 0.8rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px;">Pedido #{{ order.id }}</span>
+                    <h3 style="margin-top: 4px; font-size: 1rem; color: #333;">{{ order.date_ordered.strftime('%d/%m/%Y às %H:%M') }}</h3>
+                </div>
+                <div>
+                    {% set status_class = "" %}
+                    {% set status_text = order.status %}
+                    
+                    {% if order.status == 'Pending' %}
+                        {% set status_color = "#f39c12" %}
+                        {% set status_label = "Pendente" %}
+                    {% elif order.status == 'Preparing' %}
+                        {% set status_color = "#3498db" %}
+                        {% set status_label = "Preparando" %}
+                    {% elif order.status == 'Out for Delivery' %}
+                        {% set status_color = "#9b59b6" %}
+                        {% set status_label = "Em Entrega" %}
+                    {% elif order.status == 'Completed' %}
+                        {% set status_color = "#27ae60" %}
+                        {% set status_label = "Concluído" %}
+                    {% elif order.status == 'Cancelled' %}
+                        {% set status_color = "#e74c3c" %}
+                        {% set status_label = "Cancelado" %}
+                    {% else %}
+                        {% set status_color = "#7f8c8d" %}
+                        {% set status_label = order.status %}
+                    {% endif %}
+                    
+                    <span style="background: {{ status_color }}22; color: {{ status_color }}; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">
+                        {{ status_label }}
+                    </span>
+                </div>
+            </div>
+
+            <div style="padding: 1.5rem;">
+                <div style="margin-bottom: 1rem;">
+                    <h4 style="font-size: 0.85rem; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 0.8rem;">Itens do Pedido</h4>
+                    <ul style="list-style: none;">
+                        {% for item in order.items %}
+                        <li style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee;">
+                            <span style="font-size: 0.95rem; color: #444;">
+                                <strong style="color: var(--primary);">{{ item.quantity }}x</strong> {{ item.product.name }}
+                            </span>
+                            <span style="font-weight: 600; color: #555;">R$ {{ "%.2f"|format(item.price_at_order * item.quantity) }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem;">
+                    <div>
+                        <h4 style="font-size: 0.85rem; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem;">Entrega em:</h4>
+                        <p style="font-size: 0.9rem; color: #555; line-height: 1.4;">
+                            {{ order.address }}<br>
+                            <small style="font-weight: 700;">Bairro: {{ order.neighborhood.name }}</small>
+                        </p>
+                    </div>
+                    <div style="text-align: right; display: flex; flex-direction: column; justify-content: flex-end;">
+                        <div style="font-size: 0.9rem; color: #888;">Taxa: R$ {{ "%.2f"|format(order.delivery_fee) }}</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-top: 5px;">Total: R$ {{ "%.2f"|format(order.total_price) }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if order.status == 'Pending' or order.status == 'Preparing' %}
+            <div style="padding: 1rem 1.5rem; background: #fffbed; border-top: 1px solid #fff3cd; border-radius: 0 0 20px 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fab fa-whatsapp" style="color: #25d366; font-size: 1.2rem;"></i>
+                <span style="font-size: 0.85rem; color: #856404; font-weight: 600;">Precisa de ajuda? <a href="https://wa.me/5531994627746?text=Olá! Gostaria de falar sobre meu pedido #{{ order.id }}" target="_blank" style="color: #856404; text-decoration: underline;">Fale conosco no WhatsApp</a></span>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

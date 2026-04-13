@@ -153,6 +153,13 @@ def cart():
     neighborhoods = Neighborhood.query.all()
     return render_template('cart.html', neighborhoods=neighborhoods)
 
+@app.route('/orders')
+@login_required
+def orders():
+    # Fetch orders linked to the current user, newest first
+    user_orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.date_ordered.desc()).all()
+    return render_template('orders.html', orders=user_orders)
+
 @app.route('/api/products')
 def api_products():
     products = Product.query.filter_by(is_available=True).all()

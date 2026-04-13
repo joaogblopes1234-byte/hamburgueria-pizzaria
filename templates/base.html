@@ -32,6 +32,9 @@
         <nav>
             <ul>
                 <li><a href="{{ url_for('index') }}">Início</a></li>
+                {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('orders') }}">Meus Pedidos</a></li>
+                {% endif %}
                 <li><a href="#contato">Contato</a></li>
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <li><a href="/admin">Painel Administrativo</a></li>
@@ -209,6 +212,14 @@
                     <span>WhatsApp</span>
                 </a>
             </li>
+            {% if current_user.is_authenticated %}
+            <li class="bottom-nav-item {{ 'active' if request.path == url_for('orders') }}">
+                <a href="{{ url_for('orders') }}">
+                    <i class="fas fa-receipt"></i>
+                    <span>Pedidos</span>
+                </a>
+            </li>
+            {% endif %}
             <li class="bottom-nav-item">
                 <a href="#" onclick="openInfoModal()">
                     <i class="fas fa-info-circle"></i>
