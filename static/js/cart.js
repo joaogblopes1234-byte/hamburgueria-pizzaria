@@ -2,6 +2,15 @@
 
 let cart = JSON.parse(sessionStorage.getItem('gordin_cart')) || [];
 
+function getGuestToken() {
+    let token = localStorage.getItem('gordin_guest_token');
+    if (!token) {
+        token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('gordin_guest_token', token);
+    }
+    return token;
+}
+
 function updateCartCount() {
     // Sincroniza a variável cart com o sessionStorage para garantir dados frescos
     cart = JSON.parse(sessionStorage.getItem('gordin_cart')) || [];
@@ -367,7 +376,8 @@ function checkout() {
             delivery_fee: deliveryFee,
             total_price: total,
             customer_name: customerName,
-            customer_phone: customerPhone
+            customer_phone: customerPhone,
+            guest_token: getGuestToken()
         })
     }).then(async response => {
         if (!response.ok) {

@@ -55,6 +55,7 @@ class Order(db.Model):
     neighborhood_id = db.Column(db.Integer, db.ForeignKey('neighborhood.id'), nullable=False)
     neighborhood = db.relationship('Neighborhood', backref='orders')
     user = db.relationship('User', backref='orders')
+    guest_token = db.Column(db.String(100), nullable=True) # Token para privacidade de visitante
     items = db.relationship('OrderItem', backref='order', lazy=True)
 
 class OrderItem(db.Model):

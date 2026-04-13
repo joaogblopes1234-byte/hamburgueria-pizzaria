@@ -29,7 +29,8 @@
             <p style="color: #666; font-size: 0.9rem;">Insira seus dados para ver seu histórico de pedidos.</p>
         </div>
 
-        <form action="{{ url_for('identify_orders') }}" method="POST">
+        <form action="{{ url_for('identify_orders') }}" method="POST" id="identification-form">
+            <input type="hidden" name="guest_token" id="guest_token_input">
             <div class="form-group">
                 <label for="telefone">Seu WhatsApp</label>
                 <input type="tel" id="telefone" name="telefone" class="form-input" placeholder="Ex: 31999999999" required autocomplete="tel">
@@ -39,6 +40,13 @@
                 <input type="text" id="nome" name="nome" class="form-input" placeholder="Ex: João" required autocomplete="name">
                 <small id="fetching-name" style="display: none; color: #666; font-size: 0.75rem;"><i class="fas fa-spinner fa-spin"></i> Reconhecendo nome...</small>
             </div>
+            
+            <div style="background: #e3f2fd; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid #2196f3;">
+                <p style="margin: 0; font-size: 0.85rem; color: #0d47a1;">
+                    <i class="fas fa-shield-alt"></i> <strong>Privacidade:</strong> Por segurança, seu histórico como visitante só fica visível neste aparelho celular.
+                </p>
+            </div>
+
             <button type="submit" class="add-to-cart" style="position: static; width: 100%; border-radius: 12px; height: 52px; font-weight: 700; border: none; font-size: 1rem;">
                 Ver Meus Pedidos
             </button>
@@ -48,7 +56,14 @@
             document.addEventListener('DOMContentLoaded', function() {
                 const phoneInput = document.getElementById('telefone');
                 const nameInput = document.getElementById('nome');
+                const tokenInput = document.getElementById('guest_token_input');
                 const statusSpan = document.getElementById('fetching-name');
+                const form = document.getElementById('identification-form');
+
+                // Garante que o token do aparelho seja enviado
+                if (form && tokenInput) {
+                    tokenInput.value = localStorage.getItem('gordin_guest_token') || '';
+                }
 
                 if (phoneInput && nameInput) {
                     phoneInput.addEventListener('input', function(e) {

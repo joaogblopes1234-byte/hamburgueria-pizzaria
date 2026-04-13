@@ -164,10 +164,15 @@ def orders():
     # Check if guest is identified in session
     guest_name = session.get('guest_name')
     guest_phone = session.get('guest_phone')
+    guest_token = session.get('guest_token')
     
     if guest_name and guest_phone:
-        # Fetch orders by name and phone
-        user_orders = Order.query.filter_by(customer_name=guest_name, customer_phone=guest_phone).order_by(Order.date_ordered.desc()).all()
+        # Busca pedidos pelo nome, telefone e token do aparelho (privacidade)
+        query = Order.query.filter_by(customer_name=guest_name, customer_phone=guest_phone)
+        if guest_token:
+            query = query.filter_by(guest_token=guest_token)
+            
+        user_orders = query.order_by(Order.date_ordered.desc()).all()
         return render_template('orders.html', orders=user_orders, identified=True, guest_name=guest_name)
     
     # Not identified, show form
@@ -177,6 +182,7 @@ def orders():
 def identify_orders():
     nome = request.form.get('nome', '').strip().title()
     telefone = request.form.get('telefone', '').strip()
+    guest_token = request.form.get('guest_token', '').strip()
     
     if not nome or not telefone:
         flash('Por favor, preencha todos os campos.')
@@ -184,12 +190,16 @@ def identify_orders():
     
     session['guest_name'] = nome
     session['guest_phone'] = telefone
+    if guest_token:
+        session['guest_token'] = guest_token
+        
     return redirect(url_for('orders'))
 
 @app.route('/forget_guest')
 def forget_guest():
     session.pop('guest_name', None)
     session.pop('guest_phone', None)
+    session.pop('guest_token', None)
     return redirect(url_for('index'))
 
 @app.route('/api/products')
@@ -232,6 +242,7 @@ def api_checkout():
         items = data.get('items', [])
         customer_name = data.get('customer_name')
         customer_phone = data.get('customer_phone')
+        guest_token = data.get('guest_token')
         
         if not address or not neighborhood_id or not items:
             return jsonify({'success': False, 'message': 'Endereço, bairro ou itens faltando.'}), 400
@@ -254,6 +265,7 @@ def api_checkout():
             neighborhood_id=neighborhood_id,
             delivery_fee=delivery_fee,
             total_price=total_price,
+            guest_token=guest_token,
             status='Pending'
         )
         db.session.add(new_order)
