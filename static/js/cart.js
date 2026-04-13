@@ -149,7 +149,6 @@ function renderCart() {
     const datalist = document.getElementById('neighborhoods-list');
     const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
     const neighborhoodStatus = document.getElementById('neighborhood-status');
-    const addressInput = document.getElementById('address');
     
     let deliveryFee = 0;
     let isValidNeighborhood = false;
