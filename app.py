@@ -256,6 +256,12 @@ def api_checkout():
             db.session.add(order_item)
             
         db.session.commit()
+        
+        # Save guest session automatically after first order
+        if not current_user.is_authenticated and customer_name and customer_phone:
+            session['guest_name'] = customer_name
+            session['guest_phone'] = customer_phone
+
         return jsonify({'success': True, 'order_id': new_order.id})
     except Exception as e:
         db.session.rollback()
