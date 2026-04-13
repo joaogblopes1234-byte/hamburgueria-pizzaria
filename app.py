@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -154,11 +154,44 @@ def cart():
     return render_template('cart.html', neighborhoods=neighborhoods)
 
 @app.route('/orders')
-@login_required
 def orders():
-    # Fetch orders linked to the current user, newest first
-    user_orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.date_ordered.desc()).all()
-    return render_template('orders.html', orders=user_orders)
+    # If logged in as admin or user
+    if current_user.is_authenticated:
+        user_orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.date_ordered.desc()).all()
+        return render_template('orders.html', orders=user_orders, identified=True)
+    
+    # Check if guest is identified in session
+    guest_name = session.get('guest_name')
+    guest_phone = session.get('guest_phone')
+    
+    if guest_name and guest_phone:
+        # Fetch orders by name and phone
+        user_orders = Order.query.filter_by(customer_name=guest_name, customer_phone=guest_phone).order_by(Order.date_ordered.desc()).all()
+        return render_template('orders.html', orders=user_orders, identified=True, guest_name=guest_name)
+    
+    # Not identified, show form
+    return render_template('orders.html', identified=False)
+
+@app.route('/identify_orders', methods=['POST'])
+def identify_orders():
+    nome = request.form.get('nome', '').strip().title()
+    sobrenome = request.form.get('sobrenome', '').strip().title()
+    telefone = request.form.get('telefone', '').strip()
+    
+    if not nome or not sobrenome or not telefone:
+        flash('Por favor, preencha todos os campos.')
+        return redirect(url_for('orders'))
+    
+    full_name = f"{nome} {sobrenome}"
+    session['guest_name'] = full_name
+    session['guest_phone'] = telefone
+    return redirect(url_for('orders'))
+
+@app.route('/forget_guest')
+def forget_guest():
+    session.pop('guest_name', None)
+    session.pop('guest_phone', None)
+    return redirect(url_for('index'))
 
 @app.route('/api/products')
 def api_products():

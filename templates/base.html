@@ -32,9 +32,7 @@
         <nav>
             <ul>
                 <li><a href="{{ url_for('index') }}">Início</a></li>
-                {% if current_user.is_authenticated %}
                 <li><a href="{{ url_for('orders') }}">Meus Pedidos</a></li>
-                {% endif %}
                 <li><a href="#contato">Contato</a></li>
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <li><a href="/admin">Painel Administrativo</a></li>
@@ -46,6 +44,11 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="color: white; font-size: 0.9rem; font-weight: 500;">Olá, {{ current_user.username }}</span>
                     <a href="{{ url_for('logout') }}" title="Sair" style="color: white; text-decoration: none;"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            {% elif session.get('guest_name') %}
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="color: white; font-size: 0.9rem; font-weight: 500;">Olá, {{ session.get('guest_name').split()[0] }}</span>
+                    <a href="{{ url_for('forget_guest') }}" title="Sair" style="color: white; text-decoration: none;"><i class="fas fa-sign-out-alt"></i></a>
                 </div>
             {% endif %}
             <a href="{{ url_for('cart') }}" class="nav-icon-link cart-icon">
@@ -212,14 +215,12 @@
                     <span>WhatsApp</span>
                 </a>
             </li>
-            {% if current_user.is_authenticated %}
             <li class="bottom-nav-item {{ 'active' if request.path == url_for('orders') }}">
                 <a href="{{ url_for('orders') }}">
                     <i class="fas fa-receipt"></i>
                     <span>Pedidos</span>
                 </a>
             </li>
-            {% endif %}
             <li class="bottom-nav-item">
                 <a href="#" onclick="openInfoModal()">
                     <i class="fas fa-info-circle"></i>

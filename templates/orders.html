@@ -6,12 +6,50 @@
 <div class="container" style="padding-top: 2rem; padding-bottom: 5rem; min-height: 70vh;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
         <h1 style="font-size: 2rem; font-weight: 800; color: var(--dark);">Meus <span style="color: var(--primary);">Pedidos</span></h1>
-        <a href="{{ url_for('index') }}" class="contact-pill" style="text-decoration: none;">
-            <i class="fas fa-plus"></i> Novo Pedido
-        </a>
+        <div style="display: flex; gap: 10px;">
+            {% if identified and not current_user.is_authenticated %}
+            <a href="{{ url_for('forget_guest') }}" class="contact-pill" style="text-decoration: none; background: #eee; border: none; color: #666;">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </a>
+            {% endif %}
+            <a href="{{ url_for('index') }}" class="contact-pill" style="text-decoration: none;">
+                <i class="fas fa-plus"></i> Novo Pedido
+            </a>
+        </div>
     </div>
 
-    {% if not orders %}
+    {% if not identified %}
+    <!-- Identification Form -->
+    <div style="max-width: 500px; margin: 0 auto; background: white; padding: 2.5rem; border-radius: 20px; box-shadow: var(--shadow);">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <h2 style="font-size: 1.5rem; color: var(--dark);">Identifique-se</h2>
+            <p style="color: #666; font-size: 0.9rem;">Insira seus dados para ver seu histórico de pedidos.</p>
+        </div>
+
+        <form action="{{ url_for('identify_orders') }}" method="POST">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.2rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" class="form-input" placeholder="Ex: João" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="sobrenome">Sobrenome</label>
+                    <input type="text" id="sobrenome" name="sobrenome" class="form-input" placeholder="Ex: Silva" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="telefone">Telefone (WhatsApp)</label>
+                <input type="tel" id="telefone" name="telefone" class="form-input" placeholder="Ex: 31999999999" required>
+            </div>
+            <button type="submit" class="add-to-cart" style="position: static; width: 100%; border-radius: 12px; height: 50px; font-weight: 700; border: none; font-size: 1rem;">
+                Ver Meus Pedidos
+            </button>
+        </form>
+    </div>
+    {% elif not orders %}
     <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 20px; box-shadow: var(--shadow);">
         <div style="font-size: 4rem; color: #eee; margin-bottom: 1.5rem;">
             <i class="fas fa-receipt"></i>
