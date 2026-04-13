@@ -324,11 +324,11 @@ def init_db():
 
         # Produtos de exemplo — Bebidas
         db.session.add_all([
-            Product(name='Refri Mini',              description='Lata ou mini pet bem gelada.', price=3.00,  category=bebidas, is_available=True, image_url='/static/img/refri_mini.png'),
-            Product(name='Refrigerante 1L',         description='Garrafa de 1 litro.', price=8.00,  category=bebidas, is_available=True, image_url='/static/img/cola_1l.png'),
-            Product(name='Kuat 2L',                 description='Garrafa de 2 litros do Guaraná Kuat.', price=10.00, category=bebidas, is_available=True, image_url='/static/img/kuat_2l.png'),
-            Product(name='Fanta 2L',                description='Fanta Laranja 2 Litros.', price=14.00, category=bebidas, is_available=True, image_url='/static/img/fanta_2l.png'),
-            Product(name='Coca 2 L',                description='Garrafa família de 2 litros gelada.', price=16.00, category=bebidas, is_available=True, image_url='/static/img/coca_2l.png'),
+            Product(name='Refri Mini',              description='Lata ou mini pet bem gelada.', price=3.00,  category=bebidas, is_available=True, image_url='/static/img/refri_mini.jpg'),
+            Product(name='Refrigerante 1L',         description='Garrafa de 1 litro.', price=8.00,  category=bebidas, is_available=True, image_url='/static/img/cola_1l.jpg'),
+            Product(name='Kuat 2L',                 description='Garrafa de 2 litros do Guaraná Kuat.', price=10.00, category=bebidas, is_available=True, image_url='/static/img/kuat_2l.jpg'),
+            Product(name='Fanta 2L',                description='Fanta Laranja 2 Litros.', price=14.00, category=bebidas, is_available=True, image_url='/static/img/fanta_2l.jpg'),
+            Product(name='Coca 2 L',                description='Garrafa família de 2 litros gelada.', price=16.00, category=bebidas, is_available=True, image_url='/static/img/coca_2l.jpg'),
         ])
 
         # Produtos de exemplo — Combos
@@ -338,8 +338,8 @@ def init_db():
             Product(name='Combo X-Egg', description='X-Egg + 100g de batata + um refrigerante mini.', price=27.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1596662951482-0c4ba74a6df6?w=400'),
             Product(name='Combo Casal', description='1x X-Bacon + 1x X-Tudo + porção de batata + refrigerante 1L.', price=60.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1550547660-d9450f859349?w=400'),
             Product(name='Combo Ideal', description='03 hambúrgueres + porção de batata + bebida.', price=69.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1521305916504-4a1121188589?w=400'),
-            Product(name='Combo Duplo X-Gordin', description='2x X-Gordin + porção de fritas + refrigerante 1L.', price=75.00, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400'),
-            Product(name='Combo Duplo X-Bacon', description='2x X-Bacon + porção de fritas + refrigerante 1L.', price=55.00, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400'),
+            Product(name='Combo Duplo X-Gordin', description='2x X-Gordin + porção de fritas + refrigerante 1L.', price=75.00, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400'),
+            Product(name='Combo Duplo X-Bacon', description='2x X-Bacon + porção de fritas + refrigerante 1L.', price=55.00, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400'),
         ])
 
         db.session.commit()
