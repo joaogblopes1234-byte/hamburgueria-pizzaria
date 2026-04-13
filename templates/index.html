@@ -55,7 +55,7 @@
                 <div class="product-grid">
                     {% for product in cat_products %}
                     <div class="product-card" data-category="{{ product.category.name }}">
-                        <img src="{{ product.image_url or '/static/img/placeholder.jpg' }}" alt="{{ product.name }}" class="product-image">
+                        <img src="{{ product.image_url or '/static/img/placeholder.jpg' }}" alt="{{ product.name }}" class="product-image" loading="lazy">
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
                             <p>{{ product.description }}</p>
