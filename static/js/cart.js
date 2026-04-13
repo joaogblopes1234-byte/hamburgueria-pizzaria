@@ -133,21 +133,21 @@ function renderCart() {
     if (cartSummaryContainer) cartSummaryContainer.style.display = 'block';
 
     cartItemsContainer.innerHTML = cart.map(item => `
-        <div class="cart-item" style="display: flex; align-items: center; justify-content: space-between; background: white; padding: 1rem; border-radius: 15px; margin-bottom: 1rem; box-shadow: var(--shadow);">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <img src="${item.image}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 10px;">
-                <div>
-                    <h4 style="margin: 0;">${item.name}</h4>
-                    <p style="margin: 0; color: var(--primary); font-weight: bold;">R$ ${item.price.toFixed(2)}</p>
+        <div class="cart-item" style="display: flex; align-items: center; justify-content: space-between; background: white; padding: clamp(0.8rem, 3vw, 1.2rem); border-radius: 15px; margin-bottom: 1rem; box-shadow: var(--shadow); gap: 10px;">
+            <div style="display: flex; align-items: center; gap: clamp(0.5rem, 2vw, 1rem); flex: 1;">
+                <img src="${item.image}" style="width: clamp(50px, 15vw, 60px); height: clamp(50px, 15vw, 60px); object-fit: cover; border-radius: 10px; flex-shrink: 0;">
+                <div style="min-width: 0;">
+                    <h4 style="margin: 0; font-size: clamp(0.9rem, 3vw, 1rem); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.name}</h4>
+                    <p style="margin: 0; color: var(--primary); font-weight: bold; font-size: clamp(0.85rem, 2.5vw, 0.95rem);">R$ ${item.price.toFixed(2)}</p>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <div style="display: flex; align-items: center; background: #eee; border-radius: 20px; padding: 0.2rem 0.8rem;">
-                    <button onclick="updateQuantity('${item.id}', -1)" style="border: none; background: none; cursor: pointer; padding: 0.5rem;"><i class="fas fa-minus"></i></button>
-                    <span style="font-weight: bold; width: 30px; text-align: center;">${item.quantity}</span>
-                    <button onclick="updateQuantity('${item.id}', 1)" style="border: none; background: none; cursor: pointer; padding: 0.5rem;"><i class="fas fa-plus"></i></button>
+            <div style="display: flex; align-items: center; gap: clamp(0.5rem, 2vw, 1rem); flex-shrink: 0;">
+                <div style="display: flex; align-items: center; background: #eee; border-radius: 20px; padding: 0.2rem 0.5rem;">
+                    <button onclick="updateQuantity('${item.id}', -1)" style="border: none; background: none; cursor: pointer; padding: 0.4rem; min-width: 32px; min-height: 32px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-minus" style="font-size: 0.8rem;"></i></button>
+                    <span style="font-weight: bold; width: 25px; text-align: center; font-size: 0.9rem;">${item.quantity}</span>
+                    <button onclick="updateQuantity('${item.id}', 1)" style="border: none; background: none; cursor: pointer; padding: 0.4rem; min-width: 32px; min-height: 32px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-plus" style="font-size: 0.8rem;"></i></button>
                 </div>
-                <button onclick="removeFromCart('${item.id}')" style="border: none; background: none; color: #ff5252; cursor: pointer; font-size: 1.2rem;"><i class="fas fa-trash"></i></button>
+                <button onclick="removeFromCart('${item.id}')" style="border: none; background: none; color: #ff5252; cursor: pointer; font-size: 1.1rem; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-trash"></i></button>
             </div>
         </div>
     `).join('');
