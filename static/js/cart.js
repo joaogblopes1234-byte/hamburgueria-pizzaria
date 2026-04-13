@@ -233,6 +233,7 @@ window.addEventListener('pageshow', (event) => {
     renderCart();
 });
 
+document.addEventListener('DOMContentLoaded', () => {
     const neighborhoodSelect = document.getElementById('neighborhood');
     const streetInput = document.getElementById('street');
     const numberInput = document.getElementById('number');
