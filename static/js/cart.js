@@ -419,9 +419,7 @@ function checkout() {
             // Limpa carrinho local mas MANTÉM dados de endereço e identidade para conveniência
             sessionStorage.removeItem('gordin_cart');
             
-            // Salva identidade para persistência de histórico
-            const customerName = document.getElementById('customer_name')?.value;
-            const customerPhone = document.getElementById('customer_phone')?.value;
+            // Salva identidade para persistência de histórico (variáveis já declaradas acima no mesmo bloco)
             if (customerName) localStorage.setItem('gordin_guest_name', customerName);
             if (customerPhone) localStorage.setItem('gordin_guest_phone', customerPhone);
 
