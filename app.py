@@ -16,7 +16,9 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gordin.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_PERMANENT'] = True
+from datetime import timedelta
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 
 db.init_app(app)
 
@@ -192,6 +194,8 @@ def identify_orders():
     session['guest_phone'] = telefone
     if guest_token:
         session['guest_token'] = guest_token
+    
+    session.permanent = True
         
     return redirect(url_for('orders'))
 
@@ -286,6 +290,9 @@ def api_checkout():
         if not current_user.is_authenticated and customer_name and customer_phone:
             session['guest_name'] = customer_name
             session['guest_phone'] = customer_phone
+            if guest_token:
+                session['guest_token'] = guest_token
+            session.permanent = True
 
         return jsonify({'success': True, 'order_id': new_order.id})
     except Exception as e:

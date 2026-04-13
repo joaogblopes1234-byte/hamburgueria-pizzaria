@@ -8,7 +8,7 @@
         <h1 style="font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 800; color: var(--dark); margin: 0;">Meus <span style="color: var(--primary);">Pedidos</span></h1>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             {% if identified and not current_user.is_authenticated %}
-            <a href="{{ url_for('forget_guest') }}" class="contact-pill" style="text-decoration: none; background: #eee; border: none; color: #666; font-size: 0.85rem; padding: 8px 12px; height: 44px; display: flex; align-items: center; justify-content: center;">
+            <a href="{{ url_for('forget_guest') }}" onclick="localStorage.removeItem('gordin_guest_name'); localStorage.removeItem('gordin_guest_phone');" class="contact-pill" style="text-decoration: none; background: #eee; border: none; color: #666; font-size: 0.85rem; padding: 8px 12px; height: 44px; display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-sign-out-alt"></i> Sair
             </a>
             {% endif %}
@@ -47,7 +47,7 @@
                 </p>
             </div>
 
-            <button type="submit" class="add-to-cart" style="position: static; width: 100%; border-radius: 12px; height: 52px; font-weight: 700; border: none; font-size: 1rem;">
+            <button type="submit" onclick="saveIdentityToLocal()" class="add-to-cart" style="position: static; width: 100%; border-radius: 12px; height: 52px; font-weight: 700; border: none; font-size: 1rem;">
                 Ver Meus Pedidos
             </button>
         </form>
@@ -65,12 +65,27 @@
                     tokenInput.value = localStorage.getItem('gordin_guest_token') || '';
                 }
 
+                // --- AUTO-IDENTIFICAÇÃO ---
+                // Se o usuário não está identificado na sessão mas temos os dados no LocalStorage, preenche e submete
+                const localName = localStorage.getItem('gordin_guest_name');
+                const localPhone = localStorage.getItem('gordin_guest_phone');
+                
+                if (localName && localPhone && form && nameInput && phoneInput) {
+                    nameInput.value = localName;
+                    phoneInput.value = localPhone;
+                    // Pequeno delay para garantir que o usuário perceba a auto-identificação
+                    statusSpan.innerText = "Restaurando sua sessão...";
+                    statusSpan.style.display = "block";
+                    setTimeout(() => form.submit(), 600);
+                }
+
                 if (phoneInput && nameInput) {
                     phoneInput.addEventListener('input', function(e) {
                         const phone = e.target.value.replace(/\D/g, '');
                         
                         // Busca quando o telefone tem 10 ou 11 dígitos (padrão brasileiro)
                         if (phone.length >= 10) {
+                            statusSpan.innerText = "Reconhecendo nome...";
                             statusSpan.style.display = 'block';
                             
                             fetch(`/api/get_customer_name?phone=${phone}`)
@@ -94,6 +109,13 @@
                     });
                 }
             });
+
+            function saveIdentityToLocal() {
+                const name = document.getElementById('nome').value;
+                const phone = document.getElementById('telefone').value;
+                if (name) localStorage.setItem('gordin_guest_name', name);
+                if (phone) localStorage.setItem('gordin_guest_phone', phone);
+            }
         </script>
     </div>
     {% elif not orders %}

@@ -247,11 +247,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const numberInput = document.getElementById('number');
     const complementInput = document.getElementById('complement');
 
-    // Carregar dados salvos
-    const savedStreet = sessionStorage.getItem('gordin_street');
-    const savedNumber = sessionStorage.getItem('gordin_number');
-    const savedComplement = sessionStorage.getItem('gordin_complement');
-    const savedNeighborhood = sessionStorage.getItem('gordin_neighborhood');
+    // Carregar dados salvos (LocalStorage agora para persistência total)
+    const savedStreet = localStorage.getItem('gordin_street');
+    const savedNumber = localStorage.getItem('gordin_number');
+    const savedComplement = localStorage.getItem('gordin_complement');
+    const savedNeighborhood = localStorage.getItem('gordin_neighborhood');
 
     if (savedStreet && streetInput) streetInput.value = savedStreet;
     if (savedNumber && numberInput) numberInput.value = savedNumber;
@@ -264,25 +264,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (streetInput) {
         streetInput.addEventListener('input', () => {
-            sessionStorage.setItem('gordin_street', streetInput.value);
+            localStorage.setItem('gordin_street', streetInput.value);
         });
     }
 
     if (numberInput) {
         numberInput.addEventListener('input', () => {
-            sessionStorage.setItem('gordin_number', numberInput.value);
+            localStorage.setItem('gordin_number', numberInput.value);
         });
     }
 
     if (complementInput) {
         complementInput.addEventListener('input', () => {
-            sessionStorage.setItem('gordin_complement', complementInput.value);
+            localStorage.setItem('gordin_complement', complementInput.value);
         });
     }
 
     if (neighborhoodSelect) {
         neighborhoodSelect.addEventListener('input', () => {
-            sessionStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
+            localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
             renderCart();
         });
     }
@@ -292,7 +292,7 @@ function selectNeighborhood(name) {
     const neighborhoodInput = document.getElementById('neighborhood');
     if (neighborhoodInput) {
         neighborhoodInput.value = name;
-        sessionStorage.setItem('gordin_neighborhood', name);
+        localStorage.setItem('gordin_neighborhood', name);
         renderCart();
     }
 }
@@ -416,12 +416,15 @@ function checkout() {
             message += `\n\n*Endereço:* ${fullAddress}`;
             message += `\n*Bairro:* ${neighborhoodName}`;
 
-            // Limpa carrinho local e estado na memória AGORA
+            // Limpa carrinho local mas MANTÉM dados de endereço e identidade para conveniência
             sessionStorage.removeItem('gordin_cart');
-            sessionStorage.removeItem('gordin_street');
-            sessionStorage.removeItem('gordin_number');
-            sessionStorage.removeItem('gordin_complement');
-            sessionStorage.removeItem('gordin_neighborhood');
+            
+            // Salva identidade para persistência de histórico
+            const customerName = document.getElementById('customer_name')?.value;
+            const customerPhone = document.getElementById('customer_phone')?.value;
+            if (customerName) localStorage.setItem('gordin_guest_name', customerName);
+            if (customerPhone) localStorage.setItem('gordin_guest_phone', customerPhone);
+
             cart = [];
             updateCartCount(); 
 
