@@ -28,13 +28,20 @@
             </div>
             {% endif %}
 
-            <div class="form-group">
-                <label for="cep">CEP (opcional para preenchimento automático)</label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="cep" class="form-input" placeholder="00000-000" maxlength="9">
-                    <button type="button" id="btn-fetch-cep" class="btn btn-secondary" style="padding: 0.5rem 1rem; flex-shrink: 0;"><i class="fas fa-search"></i></button>
+            <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="street">Rua</label>
+                    <input type="text" id="street" class="form-input" placeholder="Nome da rua/avenida">
                 </div>
-                <small id="cep-status" style="display: block; margin-top: 5px; color: #666;"></small>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="number">Nº</label>
+                    <input type="text" id="number" class="form-input" placeholder="Ex: 123">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="complement">Complemento / Referência (opcional)</label>
+                <input type="text" id="complement" class="form-input" placeholder="Apto, bloco, próximo a...">
             </div>
 
             <div class="form-group">
@@ -46,11 +53,6 @@
                     {% endfor %}
                 </datalist>
                 <small id="neighborhood-status" style="display: block; margin-top: 5px; color: #ff5252;"></small>
-            </div>
-            
-            <div class="form-group">
-                <label for="address">Endereço Completo</label>
-                <input type="text" id="address" class="form-input" placeholder="Rua, número, complemento...">
             </div>
         </div>
 

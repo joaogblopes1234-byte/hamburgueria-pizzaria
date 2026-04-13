@@ -233,128 +233,48 @@ window.addEventListener('pageshow', (event) => {
     renderCart();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
     const neighborhoodSelect = document.getElementById('neighborhood');
-    const addressInput = document.getElementById('address');
-    const cepInput = document.getElementById('cep');
-    const btnFetchCep = document.getElementById('btn-fetch-cep');
-    const cepStatus = document.getElementById('cep-status');
+    const streetInput = document.getElementById('street');
+    const numberInput = document.getElementById('number');
+    const complementInput = document.getElementById('complement');
 
     // Carregar dados salvos
-    const savedAddress = localStorage.getItem('gordin_address');
+    const savedStreet = localStorage.getItem('gordin_street');
+    const savedNumber = localStorage.getItem('gordin_number');
+    const savedComplement = localStorage.getItem('gordin_complement');
     const savedNeighborhood = localStorage.getItem('gordin_neighborhood');
-    const savedCep = localStorage.getItem('gordin_cep');
 
-    if (savedAddress && addressInput) {
-        addressInput.value = savedAddress;
-    }
-
-    if (savedCep && cepInput) {
-        cepInput.value = savedCep;
-    }
+    if (savedStreet && streetInput) streetInput.value = savedStreet;
+    if (savedNumber && numberInput) numberInput.value = savedNumber;
+    if (savedComplement && complementInput) complementInput.value = savedComplement;
 
     if (savedNeighborhood && neighborhoodSelect) {
         neighborhoodSelect.value = savedNeighborhood;
-        // Forçar re-render para calcular taxa de entrega corretamente
         renderCart();
     }
 
-    // Lógica de CEP
-    if (cepInput) {
-        cepInput.addEventListener('input', (e) => {
-            const cep = e.target.value.replace(/\D/g, '');
-            if (cep.length === 8) {
-                // Formata CEP enquanto digita
-                e.target.value = cep.substring(0, 5) + '-' + cep.substring(5);
-                fetchAddressByCep(cep);
-            }
-            localStorage.setItem('gordin_cep', e.target.value);
+    if (streetInput) {
+        streetInput.addEventListener('input', () => {
+            localStorage.setItem('gordin_street', streetInput.value);
         });
     }
 
-    if (btnFetchCep) {
-        btnFetchCep.addEventListener('click', () => {
-            const cep = cepInput.value.replace(/\D/g, '');
-            if (cep.length === 8) {
-                fetchAddressByCep(cep);
-            } else {
-                updateCepStatus('CEP inválido. Digite 8 números.', 'error');
-            }
+    if (numberInput) {
+        numberInput.addEventListener('input', () => {
+            localStorage.setItem('gordin_number', numberInput.value);
         });
     }
 
-    async function fetchAddressByCep(cep) {
-        if (!cepStatus) return;
-        
-        updateCepStatus('Buscando endereço... <i class="fas fa-spinner fa-spin"></i>', 'loading');
-        
-        try {
-            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-            const data = await response.json();
-            
-            if (data.erro) {
-                updateCepStatus('CEP não encontrado.', 'error');
-                return;
-            }
-            
-            // Preenche endereço
-            const fullAddress = `${data.logradouro}${data.logradouro ? ', ' : ''}${data.bairro}`;
-            if (addressInput) {
-                addressInput.value = fullAddress;
-                localStorage.setItem('gordin_address', fullAddress);
-            }
-            
-            // Tenta selecionar bairro automaticamente
-            let foundMatch = null;
-            if (neighborhoodInput && datalist && data.bairro) {
-                const searchBairro = data.bairro.toLowerCase().trim();
-                const options = datalist.options;
-                
-                for (let i = 0; i < options.length; i++) {
-                    const optName = options[i].value.toLowerCase();
-                    // Match exato ou flexível para singular/plural
-                    if (optName === searchBairro || optName.includes(searchBairro) || searchBairro.includes(optName)) {
-                        foundMatch = options[i].value;
-                        break;
-                    }
-                }
-            }
-            
-            if (foundMatch) {
-                neighborhoodInput.value = foundMatch;
-                localStorage.setItem('gordin_neighborhood', foundMatch);
-                updateCepStatus('Endereço e bairro localizados!', 'success');
-                renderCart();
-            } else {
-                updateCepStatus('Endereço preenchido, mas bairro não encontrado na lista. Selecione manualmente.', 'warning');
-                renderCart();
-            }
-            
-        } catch (error) {
-            updateCepStatus('Erro ao buscar CEP. Verifique sua conexão.', 'error');
-        }
+    if (complementInput) {
+        complementInput.addEventListener('input', () => {
+            localStorage.setItem('gordin_complement', complementInput.value);
+        });
     }
 
-    function updateCepStatus(message, type) {
-        if (!cepStatus) return;
-        cepStatus.innerHTML = message;
-        if (type === 'error') cepStatus.style.color = '#ff5252';
-        else if (type === 'success') cepStatus.style.color = '#2ecc71';
-        else if (type === 'warning') cepStatus.style.color = '#f1c40f';
-        else cepStatus.style.color = '#666';
-    }
-
-    if (neighborhoodInput) {
-        neighborhoodInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_neighborhood', neighborhoodInput.value);
+    if (neighborhoodSelect) {
+        neighborhoodSelect.addEventListener('input', () => {
+            localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
             renderCart();
-        });
-    }
-
-    if (addressInput) {
-        addressInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_address', addressInput.value);
-            renderCart(); // Para atualizar o estado do botão (preenchido/não preenchido)
         });
     }
 });
@@ -375,7 +295,10 @@ function checkout() {
         checkoutBtn.innerHTML = 'Processando... <i class="fas fa-spinner fa-spin"></i>';
     }
 
-    const address = document.getElementById('address')?.value;
+    const street = document.getElementById('street')?.value.trim();
+    const number = document.getElementById('number')?.value.trim();
+    const complement = document.getElementById('complement')?.value.trim();
+
     const neighborhoodInput = document.getElementById('neighborhood');
     const datalist = document.getElementById('neighborhoods-list');
     const customerName = document.getElementById('customer_name')?.value;
@@ -401,14 +324,17 @@ function checkout() {
     }
     
     // Validação de campos obrigatórios
-    if (!address || !found) {
-        alert('Por favor, preencha o endereço completo e selecione um bairro válido da lista.');
+    if (!street || !number || !found) {
+        alert('Por favor, preencha a Rua, o Número e selecione um bairro válido da lista.');
         if (checkoutBtn) {
             checkoutBtn.disabled = false;
             checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
         }
         return;
     }
+
+    // Concatenate address for DB
+    const fullAddress = `${street}, ${number}${complement ? ' - ' + complement : ''}`;
 
     // Se o campo de nome/telefone estiver visível (visitante), eles são obrigatórios
     if (document.getElementById('customer_name') && (!customerName || !customerPhone)) {
@@ -430,7 +356,7 @@ function checkout() {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            address: address,
+            address: fullAddress,
             neighborhood_id: parseInt(neighborhoodId),
             items: cart.map(item => ({
                 product_id: item.product_id,
@@ -477,12 +403,14 @@ function checkout() {
             message += `\n*Subtotal:* R$ ${subtotal.toFixed(2)}`;
             message += `\n*Entrega:* R$ ${deliveryFee.toFixed(2)} (${neighborhoodName})`;
             message += `\n*Total:* R$ ${total.toFixed(2)}`;
-            message += `\n\n*Endereço:* ${address}`;
+            message += `\n\n*Endereço:* ${fullAddress}`;
             message += `\n*Bairro:* ${neighborhoodName}`;
 
             // Limpa carrinho local e estado na memória AGORA
             localStorage.removeItem('gordin_cart');
-            localStorage.removeItem('gordin_address');
+            localStorage.removeItem('gordin_street');
+            localStorage.removeItem('gordin_number');
+            localStorage.removeItem('gordin_complement');
             localStorage.removeItem('gordin_neighborhood');
             cart = [];
             updateCartCount(); 
