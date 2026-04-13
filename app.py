@@ -333,13 +333,13 @@ def init_db():
 
         # Produtos de exemplo — Combos
         db.session.add_all([
-            Product(name='Combo X-Bacon', description='X-Bacon + 100g de batata + um refrigerante mini.', price=28.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400'),
-            Product(name='Combo X-Tudo', description='X-Tudo + 100g de batata + um refrigerante mini.', price=31.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400'),
-            Product(name='Combo X-Egg', description='X-Egg + 100g de batata + um refrigerante mini.', price=27.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1596662951482-0c4ba74a6df6?w=400'),
-            Product(name='Combo Casal', description='1x X-Bacon + 1x X-Tudo + porção de batata + refrigerante 1L.', price=60.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1550547660-d9450f859349?w=400'),
+            Product(name='Combo X-Bacon', description='X-Bacon + 100g de batata + um refrigerante mini.', price=28.90, category=combos, is_available=True, image_url='/static/img/combo_xbacon.jpg'),
+            Product(name='Combo X-Tudo', description='X-Tudo + 100g de batata + um refrigerante mini.', price=31.90, category=combos, is_available=True, image_url='/static/img/combo_xtudo.jpg'),
+            Product(name='Combo X-Egg', description='X-Egg + 100g de batata + um refrigerante mini.', price=27.90, category=combos, is_available=True, image_url='/static/img/combo_xegg.jpg'),
+            Product(name='Combo Casal', description='1x X-Bacon + 1x X-Tudo + porção de batata + refrigerante 1L.', price=60.90, category=combos, is_available=True, image_url='/static/img/combo_casal.jpg'),
             Product(name='Combo Ideal', description='03 hambúrgueres + porção de batata + bebida.', price=69.90, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1521305916504-4a1121188589?w=400'),
-            Product(name='Combo Duplo X-Gordin', description='2x X-Gordin + porção de fritas + refrigerante 1L.', price=75.00, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400'),
-            Product(name='Combo Duplo X-Bacon', description='2x X-Bacon + porção de fritas + refrigerante 1L.', price=55.00, category=combos, is_available=True, image_url='https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400'),
+            Product(name='Combo Duplo X-Gordin', description='2x X-Gordin + porção de fritas + refrigerante 1L.', price=75.00, category=combos, is_available=True, image_url='/static/img/combo_duplo_xgordin.jpg'),
+            Product(name='Combo Duplo X-Bacon', description='2x X-Bacon + porção de fritas + refrigerante 1L.', price=55.00, category=combos, is_available=True, image_url='/static/img/combo_duplo_xbacon.jpg'),
         ])
 
         db.session.commit()
