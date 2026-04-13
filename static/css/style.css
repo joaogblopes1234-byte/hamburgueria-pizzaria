@@ -959,6 +959,9 @@ footer {
         min-height: 48px;
         font-size: 16px; /* Prevents auto-zoom on iOS */
     }
+    .whatsapp-float {
+        display: none;
+    }
 }
 
 @media (max-width: 480px) {
