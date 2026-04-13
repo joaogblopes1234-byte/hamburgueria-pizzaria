@@ -28,6 +28,17 @@
             </div>
             {% endif %}
 
+            <div class="form-group">
+                <label for="neighborhood">Selecione ou Digite seu Bairro</label>
+                <input type="text" id="neighborhood" list="neighborhoods-list" class="form-input" placeholder="Comece a digitar o bairro...">
+                <datalist id="neighborhoods-list">
+                    {% for n in neighborhoods %}
+                    <option value="{{ n.name }}" data-id="{{ n.id }}" data-fee="{{ n.delivery_fee }}"></option>
+                    {% endfor %}
+                </datalist>
+                <small id="neighborhood-status" style="display: block; margin-top: 5px; color: #ff5252;"></small>
+            </div>
+
             <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label for="street">Rua</label>
@@ -42,17 +53,6 @@
             <div class="form-group">
                 <label for="complement">Complemento / Referência (opcional)</label>
                 <input type="text" id="complement" class="form-input" placeholder="Apto, bloco, próximo a...">
-            </div>
-
-            <div class="form-group">
-                <label for="neighborhood">Selecione ou Digite seu Bairro</label>
-                <input type="text" id="neighborhood" list="neighborhoods-list" class="form-input" placeholder="Comece a digitar o bairro...">
-                <datalist id="neighborhoods-list">
-                    {% for n in neighborhoods %}
-                    <option value="{{ n.name }}" data-id="{{ n.id }}" data-fee="{{ n.delivery_fee }}"></option>
-                    {% endfor %}
-                </datalist>
-                <small id="neighborhood-status" style="display: block; margin-top: 5px; color: #ff5252;"></small>
             </div>
         </div>
 

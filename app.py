@@ -16,6 +16,7 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gordin.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_PERMANENT'] = False
 
 db.init_app(app)
 
