@@ -1,10 +1,10 @@
 // Shopping Cart Logic for Gordin Lanches
 
-let cart = JSON.parse(localStorage.getItem('gordin_cart')) || [];
+let cart = JSON.parse(sessionStorage.getItem('gordin_cart')) || [];
 
 function updateCartCount() {
-    // Sincroniza a variável cart com o localStorage para garantir dados frescos
-    cart = JSON.parse(localStorage.getItem('gordin_cart')) || [];
+    // Sincroniza a variável cart com o sessionStorage para garantir dados frescos
+    cart = JSON.parse(sessionStorage.getItem('gordin_cart')) || [];
     
     const countElement = document.getElementById('cart-count');
     const mobileCountElement = document.getElementById('mobile-cart-count');
@@ -38,7 +38,7 @@ function updateCartCount() {
 }
 
 function saveCart() {
-    localStorage.setItem('gordin_cart', JSON.stringify(cart));
+    sessionStorage.setItem('gordin_cart', JSON.stringify(cart));
     updateCartCount();
 }
 
@@ -239,10 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const complementInput = document.getElementById('complement');
 
     // Carregar dados salvos
-    const savedStreet = localStorage.getItem('gordin_street');
-    const savedNumber = localStorage.getItem('gordin_number');
-    const savedComplement = localStorage.getItem('gordin_complement');
-    const savedNeighborhood = localStorage.getItem('gordin_neighborhood');
+    const savedStreet = sessionStorage.getItem('gordin_street');
+    const savedNumber = sessionStorage.getItem('gordin_number');
+    const savedComplement = sessionStorage.getItem('gordin_complement');
+    const savedNeighborhood = sessionStorage.getItem('gordin_neighborhood');
 
     if (savedStreet && streetInput) streetInput.value = savedStreet;
     if (savedNumber && numberInput) numberInput.value = savedNumber;
@@ -255,25 +255,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (streetInput) {
         streetInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_street', streetInput.value);
+            sessionStorage.setItem('gordin_street', streetInput.value);
         });
     }
 
     if (numberInput) {
         numberInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_number', numberInput.value);
+            sessionStorage.setItem('gordin_number', numberInput.value);
         });
     }
 
     if (complementInput) {
         complementInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_complement', complementInput.value);
+            sessionStorage.setItem('gordin_complement', complementInput.value);
         });
     }
 
     if (neighborhoodSelect) {
         neighborhoodSelect.addEventListener('input', () => {
-            localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
+            sessionStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
             renderCart();
         });
     }
@@ -283,7 +283,7 @@ function selectNeighborhood(name) {
     const neighborhoodInput = document.getElementById('neighborhood');
     if (neighborhoodInput) {
         neighborhoodInput.value = name;
-        localStorage.setItem('gordin_neighborhood', name);
+        sessionStorage.setItem('gordin_neighborhood', name);
         renderCart();
     }
 }
@@ -407,11 +407,11 @@ function checkout() {
             message += `\n*Bairro:* ${neighborhoodName}`;
 
             // Limpa carrinho local e estado na memória AGORA
-            localStorage.removeItem('gordin_cart');
-            localStorage.removeItem('gordin_street');
-            localStorage.removeItem('gordin_number');
-            localStorage.removeItem('gordin_complement');
-            localStorage.removeItem('gordin_neighborhood');
+            sessionStorage.removeItem('gordin_cart');
+            sessionStorage.removeItem('gordin_street');
+            sessionStorage.removeItem('gordin_number');
+            sessionStorage.removeItem('gordin_complement');
+            sessionStorage.removeItem('gordin_neighborhood');
             cart = [];
             updateCartCount(); 
 
