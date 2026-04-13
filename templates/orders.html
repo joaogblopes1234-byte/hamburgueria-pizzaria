@@ -31,17 +31,55 @@
 
         <form action="{{ url_for('identify_orders') }}" method="POST">
             <div class="form-group">
-                <label for="nome">Seu Nome</label>
-                <input type="text" id="nome" name="nome" class="form-input" placeholder="Ex: João" required>
+                <label for="telefone">Seu WhatsApp</label>
+                <input type="tel" id="telefone" name="telefone" class="form-input" placeholder="Ex: 31999999999" required autocomplete="tel">
             </div>
             <div class="form-group">
-                <label for="telefone">Seu WhatsApp</label>
-                <input type="tel" id="telefone" name="telefone" class="form-input" placeholder="Ex: 31999999999" required>
+                <label for="nome">Seu Nome</label>
+                <input type="text" id="nome" name="nome" class="form-input" placeholder="Ex: João" required autocomplete="name">
+                <small id="fetching-name" style="display: none; color: #666; font-size: 0.75rem;"><i class="fas fa-spinner fa-spin"></i> Reconhecendo nome...</small>
             </div>
             <button type="submit" class="add-to-cart" style="position: static; width: 100%; border-radius: 12px; height: 52px; font-weight: 700; border: none; font-size: 1rem;">
                 Ver Meus Pedidos
             </button>
         </form>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const phoneInput = document.getElementById('telefone');
+                const nameInput = document.getElementById('nome');
+                const statusSpan = document.getElementById('fetching-name');
+
+                if (phoneInput && nameInput) {
+                    phoneInput.addEventListener('input', function(e) {
+                        const phone = e.target.value.replace(/\D/g, '');
+                        
+                        // Busca quando o telefone tem 10 ou 11 dígitos (padrão brasileiro)
+                        if (phone.length >= 10) {
+                            statusSpan.style.display = 'block';
+                            
+                            fetch(`/api/get_customer_name?phone=${phone}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    statusSpan.style.display = 'none';
+                                    if (data.success && data.name) {
+                                        // Só preenche se o campo de nome estiver vazio
+                                        if (!nameInput.value.trim()) {
+                                            nameInput.value = data.name;
+                                            nameInput.classList.add('price-updated');
+                                            setTimeout(() => nameInput.classList.remove('price-updated'), 800);
+                                        }
+                                    }
+                                })
+                                .catch(err => {
+                                    statusSpan.style.display = 'none';
+                                    console.error('Erro ao buscar nome:', err);
+                                });
+                        }
+                    });
+                }
+            });
+        </script>
     </div>
     {% elif not orders %}
     <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 20px; box-shadow: var(--shadow);">

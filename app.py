@@ -204,6 +204,20 @@ def api_products():
         'category': p.category.name
     } for p in products])
 
+@app.route('/api/get_customer_name')
+def get_customer_name():
+    phone = request.args.get('phone', '').strip()
+    if not phone:
+        return jsonify({'success': False, 'message': 'Phone is required'}), 400
+    
+    # Busca o pedido mais recente com esse telefone
+    latest_order = Order.query.filter_by(customer_phone=phone).order_by(Order.date_ordered.desc()).first()
+    
+    if latest_order and latest_order.customer_name:
+        return jsonify({'success': True, 'name': latest_order.customer_name})
+    
+    return jsonify({'success': False, 'message': 'No customer found for this phone'})
+
 @app.route('/api/checkout', methods=['POST'])
 def api_checkout():
     try:
