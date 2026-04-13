@@ -325,10 +325,10 @@ def init_db():
         # Produtos de exemplo — Bebidas
         db.session.add_all([
             Product(name='Refri Mini',              description='Lata ou mini pet bem gelada.', price=3.00,  category=bebidas, is_available=True, image_url='/static/img/refri_mini.jpg'),
-            Product(name='Refrigerante 1L',         description='Garrafa de 1 litro.', price=8.00,  category=bebidas, is_available=True, image_url='/static/img/cola_1l.png'),
-            Product(name='Kuat 2L',                 description='Garrafa de 2 litros do Guaraná Kuat.', price=10.00, category=bebidas, is_available=True, image_url='/static/img/kuat_2l.png'),
-            Product(name='Fanta 2L',                description='Fanta Laranja 2 Litros.', price=14.00, category=bebidas, is_available=True, image_url='/static/img/fanta_2l.png'),
-            Product(name='Coca 2 L',                description='Garrafa família de 2 litros gelada.', price=16.00, category=bebidas, is_available=True, image_url='/static/img/coca_2l.png'),
+            Product(name='Refrigerante 1L',         description='Garrafa de 1 litro.', price=8.00,  category=bebidas, is_available=True, image_url='/static/img/cola_1l.jpg'),
+            Product(name='Kuat 2L',                 description='Garrafa de 2 litros do Guaraná Kuat.', price=10.00, category=bebidas, is_available=True, image_url='/static/img/kuat_2l.jpg'),
+            Product(name='Fanta 2L',                description='Fanta Laranja 2 Litros.', price=14.00, category=bebidas, is_available=True, image_url='/static/img/fanta_2l.jpg'),
+            Product(name='Coca 2 L',                description='Garrafa família de 2 litros gelada.', price=16.00, category=bebidas, is_available=True, image_url='/static/img/coca_2l.jpg'),
         ])
 
         # Produtos de exemplo — Combos
