@@ -315,7 +315,8 @@ def init_db():
         bordas     = Category(name='Bordas Recheadas')
         combos     = Category(name='Combos')
         bebidas    = Category(name='Bebidas')
-        db.session.add_all([hamburguer, pizza_g, pizza_m, pizza_p, pizza_doce, bordas, combos, bebidas])
+        promocoes  = Category(name='Promoções')
+        db.session.add_all([promocoes, hamburguer, pizza_g, pizza_m, pizza_p, pizza_doce, bordas, combos, bebidas])
         db.session.flush()  # gera os IDs antes de criar os produtos
 
         # Bairros (João Monlevade)
@@ -406,7 +407,11 @@ def init_db():
             Product(name='Refrigerante 1L',         description='Garrafa de 1 litro.', price=8.00,  category=bebidas, is_available=True, image_url='/static/img/cola_1l.jpg'),
             Product(name='Kuat 2L',                 description='Garrafa de 2 litros do Guaraná Kuat.', price=10.00, category=bebidas, is_available=True, image_url='/static/img/kuat_2l.jpg'),
             Product(name='Fanta 2L',                description='Fanta Laranja 2 Litros.', price=14.00, category=bebidas, is_available=True, image_url='/static/img/fanta_2l.jpg'),
-            Product(name='Coca 2 L',                description='Garrafa família de 2 litros gelada.', price=16.00, category=bebidas, is_available=True, image_url='/static/img/coca_2l.jpg'),
+        ])
+        
+        # Promoções
+        db.session.add_all([
+            Product(name='3 XTUDO + 1 KUAT 2 LITROS', description='3 X-Tudo completos + Refrigerante Kuat 2 Litros. A promoção braba que você respeita!', price=86.90, category=promocoes, is_available=True, image_url='/static/img/combo_xtudo.jpg'),
         ])
 
         # Produtos de exemplo — Combos

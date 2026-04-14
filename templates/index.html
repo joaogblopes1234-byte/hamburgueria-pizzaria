@@ -44,17 +44,20 @@
 
     <h2 class="section-title">Cardápio do dia</h2>
     <div id="product-groups">
-        {% set category_order = ['Hambúrguer', 'Combos', 'Pizzas (Grande)', 'Pizzas (Média)', 'Pizzas (Pequena)', 'Pizzas Doces (Brotinho)', 'Bordas Recheadas', 'Bebidas'] %}
+        {% set category_order = ['Promoções', 'Hambúrguer', 'Combos', 'Pizzas (Grande)', 'Pizzas (Média)', 'Pizzas (Pequena)', 'Pizzas Doces (Brotinho)', 'Bordas Recheadas', 'Bebidas'] %}
         {% for cat_name in category_order %}
             {% set cat_products = products | selectattr('category.name', 'equalto', cat_name) | list %}
             {% if cat_products %}
             <div class="category-group" data-category-group="{{ cat_name }}" style="margin-bottom: 2rem;">
-                <h3 style="margin-bottom: 1rem; border-left: 4px solid var(--primary); padding-left: 10px; color: var(--dark); font-size: 1.5rem;">
+                <h3 class="{{ 'promotion-title' if cat_name == 'Promoções' else '' }}" style="margin-bottom: 1rem; border-left: 4px solid var(--primary); padding-left: 10px; color: var(--dark); font-size: 1.5rem;">
                     {{ cat_name if cat_name != 'Hambúrguer' else 'Hambúrgueres' }}
                 </h3>
                 <div class="product-grid">
                     {% for product in cat_products %}
-                    <div class="product-card" data-category="{{ product.category.name }}">
+                    <div class="product-card {{ 'promotion-card' if cat_name == 'Promoções' else '' }}" data-category="{{ product.category.name }}">
+                        {% if cat_name == 'Promoções' %}
+                        <div class="promo-badge">OFERTA LIMITADA</div>
+                        {% endif %}
                         <img src="{{ product.image_url or '/static/img/placeholder.jpg' }}" alt="{{ product.name }}" class="product-image" loading="lazy">
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
@@ -65,12 +68,12 @@
                         <button class="add-to-cart" onclick="openCrustModal({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url or '/static/img/placeholder.jpg' }}')">
                             <i class="fas fa-plus"></i>
                         </button>
-                        {% elif cat_name not in ['Bebidas', 'Bordas Recheadas'] %}
+                        {% elif cat_name not in ['Bebidas', 'Bordas Recheadas', 'Promoções'] %}
                         <button class="add-to-cart" onclick="openDrinkModal({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url or '/static/img/placeholder.jpg' }}')">
                             <i class="fas fa-plus"></i>
                         </button>
                         {% else %}
-                        <button class="add-to-cart" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url or '/static/img/placeholder.jpg' }}')">
+                        <button class="add-to-cart {{ 'promo-btn' if cat_name == 'Promoções' else '' }}" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url or '/static/img/placeholder.jpg' }}')">
                             <i class="fas fa-plus"></i>
                         </button>
                         {% endif %}
