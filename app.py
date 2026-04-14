@@ -8,17 +8,27 @@ from models import db, User, Category, Product, Neighborhood, Order, OrderItem
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'gordin_lanches_chave_super_secreta_2026')
 
-# Na Vercel, usar /tmp (única pasta com permissão de escrita)
-# Localmente, usar a pasta instance/
-if os.environ.get('VERCEL'):
+# Configuração de Banco de Dados (Priorizando Vercel Postgres)
+database_url = os.environ.get('POSTGRES_URL') or os.environ.get('DATABASE_URL')
+
+if database_url:
+    # SQLAlchemy 1.4+ exige 'postgresql://' ao invés de 'postgres://'
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+elif os.environ.get('VERCEL'):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/gordin.db'
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gordin.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SESSION_PERMANENT'] = True
+
+# Configurações de Sessão para Persistência
 from datetime import timedelta
+app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = True if os.environ.get('VERCEL') else False
 
 db.init_app(app)
 
