@@ -411,7 +411,7 @@ def init_db():
         
         # Promoções
         db.session.add_all([
-            Product(name='3 XTUDO + 1 KUAT 2 LITROS', description='3 X-Tudo completos + Refrigerante Kuat 2 Litros. A promoção braba que você respeita!', price=86.90, category=promocoes, is_available=True, image_url='/static/img/combo_xtudo.jpg'),
+            Product(name='3 XTUDO + 1 KUAT 2 LITROS', description='3 X-Tudo completos + Refrigerante Kuat 2 Litros. A promoção braba que você respeita!', price=86.90, category=promocoes, is_available=True, image_url='https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?q=80&w=800'),
         ])
 
         # Produtos de exemplo — Combos
