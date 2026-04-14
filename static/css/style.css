@@ -134,7 +134,7 @@ nav ul li a:hover {
 
 /* Header Banner & Profile Section */
 .header-banner {
-    height: 300px;
+    height: 380px;
     width: 100%;
     position: relative;
     background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('../img/banner-bg.jpg');
@@ -146,6 +146,7 @@ nav ul li a:hover {
     align-items: center;
     text-align: center;
     color: white;
+    padding-bottom: 80px; /* Pushes content up to avoid profile overlap */
 }
 
 .banner-text h1 {
@@ -947,7 +948,8 @@ footer {
         padding: 0.8rem 1rem;
     }
     .header-banner {
-        height: 180px;
+        height: 260px;
+        padding-bottom: 40px;
     }
     .banner-text h1 {
         font-size: 1.8rem;
