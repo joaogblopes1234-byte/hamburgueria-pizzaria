@@ -144,7 +144,23 @@ def login():
         next_url = request.form.get('next_url')
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password_hash, password):
+            # Sincronização de pedidos: Pega o token de visitante ANTES de logar
+            guest_token = session.get('guest_token')
+            guest_phone = session.get('guest_phone')
+            
             login_user(user)
+            
+            # Vincula pedidos que eram deste visitante à nova conta logada
+            try:
+                if guest_token:
+                    Order.query.filter_by(guest_token=guest_token, user_id=None).update({Order.user_id: user.id})
+                if user.phone:
+                    Order.query.filter_by(customer_phone=user.phone, user_id=None).update({Order.user_id: user.id})
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(f"Sync Error during login: {str(e)}")
+
             return redirect(next_url or url_for('index'))
         flash('Email ou senha inválidos.')
         return redirect(url_for('login', next=next_url))
@@ -168,9 +184,13 @@ def cart():
 
 @app.route('/orders')
 def orders():
-    # If logged in as admin or user
+    # Se estiver logado, busca pedidos pelo ID do usuário ou pelo telefone cadastrado
     if current_user.is_authenticated:
-        user_orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.date_ordered.desc()).all()
+        query = Order.query.filter((Order.user_id == current_user.id))
+        if hasattr(current_user, 'phone') and current_user.phone:
+            query = Order.query.filter((Order.user_id == current_user.id) | (Order.customer_phone == current_user.phone))
+            
+        user_orders = query.order_by(Order.date_ordered.desc()).all()
         return render_template('orders.html', orders=user_orders, identified=True)
     
     # Check if guest is identified in session
@@ -315,6 +335,16 @@ def api_checkout():
 
 def init_db():
     db.create_all()
+    
+    # Migração manual: Tenta adicionar a coluna 'phone' caso não exista (importante para o Vercel Postgres)
+    try:
+        from sqlalchemy import text
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS phone VARCHAR(20)"))
+            conn.commit()
+    except Exception as e:
+        print(f"Migration Note (User.phone): {str(e)}")
+
     if not Category.query.first():
         # Categorias
         hamburguer = Category(name='Hambúrguer')
