@@ -399,8 +399,13 @@ function checkout() {
     }).then(data => {
         if (data.success) {
             // Gera string para WhatsApp ANTES de limpar o carrinho
-            const customerName = document.getElementById('customer_name')?.value;
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('pt-BR');
+            const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
             let message = `*Pedido Gordin Lanches (Pedido #${data.order_id})*\n`;
+            message += `*Data:* ${dateStr} às ${timeStr}\n`;
+            
             if (customerName) {
                 message += `*Cliente:* ${customerName}\n`;
             }
@@ -442,11 +447,18 @@ function checkout() {
             const container = document.querySelector('.container');
             if (container) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 20px; box-shadow: var(--shadow); margin-top: 2rem;">
-                        <div style="font-size: 4rem; color: var(--success); margin-bottom: 1.5rem;"><i class="fas fa-check-circle"></i></div>
-                        <h2 style="margin-bottom: 1rem;">Pedido Iniciado!</h2>
-                        <p style="color: #666; margin-bottom: 2rem;">Seu pedido foi registrado no sistema e o WhatsApp foi aberto. Finalize o envio por lá!</p>
-                        <a href="/" class="btn btn-primary">Voltar para o Início</a>
+                    <div style="text-align: center; padding: 3rem 1.5rem; background: white; border-radius: 20px; box-shadow: var(--shadow); margin-top: 2rem;">
+                        <div style="font-size: 5rem; color: var(--success); margin-bottom: 1.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));"><i class="fas fa-check-circle"></i></div>
+                        <h2 style="margin-bottom: 1rem; font-weight: 800; color: var(--dark);">Pedido Iniciado!</h2>
+                        <p style="color: #666; margin-bottom: 2.5rem; font-size: 1.1rem;">Seu pedido foi registrado no sistema e o WhatsApp foi aberto. Finalize o envio por lá!</p>
+                        <div style="display: flex; gap: 20px; justify-content: center; flex-direction: column; align-items: center;">
+                            <a href="/orders" class="add-to-cart" style="position: static; padding: 1.2rem 3rem; border-radius: 50px; width: 100%; max-width: 320px; text-decoration: none; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--primary); box-shadow: 0 10px 20px rgba(230, 57, 70, 0.2); transform: translateY(0); transition: all 0.3s ease;">
+                                <i class="fas fa-receipt" style="font-size: 1.3rem;"></i> <strong>Ver Meus Pedidos</strong>
+                            </a>
+                            <a href="/" style="text-decoration: none; color: #888; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-arrow-left"></i> Voltar ao Cardápio
+                            </a>
+                        </div>
                     </div>
                 `;
             }

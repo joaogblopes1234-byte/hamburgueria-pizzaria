@@ -1,6 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+
+def get_brazil_time():
+    """Retorna o horário atual de Brasília (UTC-3) como objeto naive"""
+    return datetime.now(timezone(timedelta(hours=-3))).replace(tzinfo=None)
+
 
 db = SQLAlchemy()
 
@@ -45,7 +50,7 @@ class Neighborhood(db.Model):
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date_ordered = db.Column(db.DateTime, default=datetime.utcnow)
+    date_ordered = db.Column(db.DateTime, default=get_brazil_time)
     status = db.Column(db.String(20), default='Pending') # Pending, Preparing, Out for Delivery, Completed, Cancelled
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) # Alterado para nullable=True para checkout de visitante
     customer_name = db.Column(db.String(100), nullable=True) # Nome para visitante

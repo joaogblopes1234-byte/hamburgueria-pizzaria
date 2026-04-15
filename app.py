@@ -336,12 +336,16 @@ def api_checkout():
 def init_db():
     db.create_all()
     
-    # Migração manual: Tenta adicionar a coluna 'phone' caso não exista (importante para o Vercel Postgres)
+    # Migração manual: Adiciona a coluna 'phone' se não existir, respeitando a sintaxe do banco
     try:
-        from sqlalchemy import text
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS phone VARCHAR(20)"))
-            conn.commit()
+        from sqlalchemy import inspect, text
+        inspector = inspect(db.engine)
+        columns = [c['name'] for c in inspector.get_columns('user')]
+        if 'phone' not in columns:
+            with db.engine.connect() as conn:
+                # SQLite não suporta 'IF NOT EXISTS' no ALTER TABLE, mas agora temos a verificação do inspector
+                conn.execute(text("ALTER TABLE \"user\" ADD COLUMN phone VARCHAR(20)"))
+                conn.commit()
     except Exception as e:
         print(f"Migration Note (User.phone): {str(e)}")
 
