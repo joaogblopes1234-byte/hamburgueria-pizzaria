@@ -154,8 +154,6 @@ function renderCart() {
 
     // Calculate Totals
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const neighborhoodInput = document.getElementById('neighborhood');
-    const datalist = document.getElementById('neighborhoods-list');
     const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
     const neighborhoodStatus = document.getElementById('neighborhood-status');
     
