@@ -338,18 +338,51 @@ def api_checkout():
 def init_db():
     db.create_all()
     
-    # Migração manual: Adiciona a coluna 'phone' se não existir, respeitando a sintaxe do banco
+    # Migração manual: Adiciona colunas se não existirem (essencial para Vercel Postgres)
     try:
         from sqlalchemy import inspect, text
         inspector = inspect(db.engine)
-        columns = [c['name'] for c in inspector.get_columns('user')]
-        if 'phone' not in columns:
+        
+        # 1. Tabela 'user'
+        user_cols = [c['name'] for c in inspector.get_columns('user')]
+        if 'phone' not in user_cols:
             with db.engine.connect() as conn:
-                # SQLite não suporta 'IF NOT EXISTS' no ALTER TABLE, mas agora temos a verificação do inspector
                 conn.execute(text("ALTER TABLE \"user\" ADD COLUMN phone VARCHAR(20)"))
                 conn.commit()
+
+        # 2. Tabela 'order' (renomeada internamente para custom name ou 'order' padrão)
+        # Note: 'order' é palavra reservada no Postgres, geralmente a tabela é "order" (com aspas)
+        order_cols = [c['name'] for c in inspector.get_columns('order')]
+        with db.engine.connect() as conn:
+            # Lista de migrações necessárias para a tabela 'order'
+            migrations = [
+                ('customer_name', "VARCHAR(100)"),
+                ('customer_phone', "VARCHAR(20)"),
+                ('status', "VARCHAR(20) DEFAULT 'Pending'"),
+                ('guest_token', "VARCHAR(100)"),
+                ('delivery_fee', "FLOAT DEFAULT 0"),
+                ('neighborhood_id', "INTEGER") # Se for novo, as FKs podem ser chatas, mas vamos adicionar a coluna primeiro
+            ]
+            
+            for col_name, col_type in migrations:
+                if col_name not in order_cols:
+                    try:
+                        conn.execute(text(f"ALTER TABLE \"order\" ADD COLUMN {col_name} {col_type}"))
+                        conn.commit()
+                        print(f"[MIGRAÇÃO] Coluna {col_name} adicionada à tabela order.")
+                    except Exception as col_e:
+                        print(f"[MIGRAÇÃO] Falha ao adicionar {col_name}: {col_e}")
+                        conn.rollback()
+
+        # 3. Tabela 'order_item'
+        item_cols = [c['name'] for c in inspector.get_columns('order_item')]
+        if 'price_at_order' not in item_cols:
+            with db.engine.connect() as conn:
+                conn.execute(text("ALTER TABLE order_item ADD COLUMN price_at_order FLOAT DEFAULT 0"))
+                conn.commit()
+
     except Exception as e:
-        print(f"Migration Note (User.phone): {str(e)}")
+        print(f"Migration Error: {str(e)}")
 
     if not Category.query.first():
         # Categorias
