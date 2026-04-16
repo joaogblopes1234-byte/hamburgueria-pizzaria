@@ -328,9 +328,10 @@ def api_checkout():
         return jsonify({'success': True, 'order_id': new_order.id})
     except Exception as e:
         db.session.rollback()
-        print(f"Checkout Error: {str(e)}")
-        # Em produção, não queremos expor detalhes sensíveis, mas uma mensagem útil ajuda
-        return jsonify({'success': False, 'message': 'Erro interno ao processar o pedido no banco de dados.'}), 500
+        import traceback
+        error_msg = f"{str(e)}"
+        print(f"Checkout Error: {error_msg}")
+        return jsonify({'success': False, 'message': f'Erro no servidor: {error_msg}'}), 500
 
 # ── Inicialização do Banco ─────────────────────────────────────────────────
 
