@@ -448,8 +448,10 @@ def init_db():
         # Produtos de exemplo — Bebidas
         db.session.add_all([
             Product(name='Refri Mini',              description='Lata ou mini pet bem gelada.', price=3.00,  category=bebidas, is_available=True, image_url='/static/img/refri_mini.jpg'),
+            Product(name='Coca-Cola Lata',          description='Coca-Cola Lata 350ml bem gelada.', price=6.00, category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1629203851022-39c6f2ec4e5d?w=400'),
             Product(name='Refrigerante 1L',         description='Garrafa de 1 litro.', price=8.00,  category=bebidas, is_available=True, image_url='/static/img/cola_1l.jpg'),
             Product(name='Kuat 2L',                 description='Garrafa de 2 litros do Guaraná Kuat.', price=10.00, category=bebidas, is_available=True, image_url='/static/img/kuat_2l.jpg'),
+            Product(name='Coca-Cola 2L',            description='Coca-Cola 2 Litros bem gelada.', price=14.00, category=bebidas, is_available=True, image_url='https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'),
             Product(name='Fanta 2L',                description='Fanta Laranja 2 Litros.', price=14.00, category=bebidas, is_available=True, image_url='/static/img/fanta_2l.jpg'),
         ])
         
@@ -470,6 +472,46 @@ def init_db():
         ])
 
         db.session.commit()
+
+    # ── Migração de Produtos: Garante que estes produtos existam SEMPRE ──────
+    # Esta seção roda toda vez que o app inicia, garantindo que produtos adicionados
+    # recentemente apareçam no Vercel mesmo com o banco já existente.
+    try:
+        bebidas_cat = Category.query.filter_by(name='Bebidas').first()
+        if bebidas_cat:
+            produtos_para_garantir = [
+                {
+                    'name': 'Coca-Cola Lata',
+                    'description': 'Coca-Cola Lata 350ml bem gelada.',
+                    'price': 6.00,
+                    'image_url': 'https://images.unsplash.com/photo-1629203851022-39c6f2ec4e5d?w=400'
+                },
+                {
+                    'name': 'Coca-Cola 2L',
+                    'description': 'Coca-Cola 2 Litros bem gelada.',
+                    'price': 14.00,
+                    'image_url': 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400'
+                },
+            ]
+            changed = False
+            for p_data in produtos_para_garantir:
+                exists = Product.query.filter_by(name=p_data['name']).first()
+                if not exists:
+                    db.session.add(Product(
+                        name=p_data['name'],
+                        description=p_data['description'],
+                        price=p_data['price'],
+                        category=bebidas_cat,
+                        is_available=True,
+                        image_url=p_data['image_url']
+                    ))
+                    changed = True
+                    print(f"[MIGRAÇÃO] Produto adicionado: {p_data['name']}")
+            if changed:
+                db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"[AVISO] Migração de produtos falhou: {e}")
 
 with app.app_context():
     try:

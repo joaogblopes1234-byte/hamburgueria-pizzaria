@@ -242,20 +242,25 @@ window.addEventListener('pageshow', (event) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    const neighborhoodSelect = document.getElementById('neighborhood');
     const streetInput = document.getElementById('street');
     const numberInput = document.getElementById('number');
     const complementInput = document.getElementById('complement');
+    const nameInput = document.getElementById('customer_name');
+    const phoneInput = document.getElementById('customer_phone');
 
     // Carregar dados salvos (LocalStorage agora para persistência total)
     const savedStreet = localStorage.getItem('gordin_street');
     const savedNumber = localStorage.getItem('gordin_number');
     const savedComplement = localStorage.getItem('gordin_complement');
     const savedNeighborhood = localStorage.getItem('gordin_neighborhood');
+    const savedName = localStorage.getItem('gordin_guest_name');
+    const savedPhone = localStorage.getItem('gordin_guest_phone');
 
     if (savedStreet && streetInput) streetInput.value = savedStreet;
     if (savedNumber && numberInput) numberInput.value = savedNumber;
     if (savedComplement && complementInput) complementInput.value = savedComplement;
+    if (savedName && nameInput) nameInput.value = savedName;
+    if (savedPhone && phoneInput) phoneInput.value = savedPhone;
 
     if (savedNeighborhood && neighborhoodSelect) {
         neighborhoodSelect.value = savedNeighborhood;
@@ -284,6 +289,18 @@ document.addEventListener('DOMContentLoaded', () => {
         neighborhoodSelect.addEventListener('input', () => {
             localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
             renderCart();
+        });
+    }
+
+    if (nameInput) {
+        nameInput.addEventListener('input', () => {
+            localStorage.setItem('gordin_guest_name', nameInput.value);
+        });
+    }
+
+    if (phoneInput) {
+        phoneInput.addEventListener('input', () => {
+            localStorage.setItem('gordin_guest_phone', phoneInput.value);
         });
     }
 });
