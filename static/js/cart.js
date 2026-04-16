@@ -158,32 +158,14 @@ function renderCart() {
     
     let deliveryFee = 0;
     let isValidNeighborhood = false;
-    let matchedName = "";
 
-    const neighborhoodInput = document.getElementById('neighborhood');
-    const neighborhoodsDataEl = document.getElementById('neighborhoods-data');
-    
-    if (neighborhoodInput && neighborhoodInput.value && neighborhoodsDataEl) {
-        try {
-            const neighborhoodsData = JSON.parse(neighborhoodsDataEl.textContent);
-            const val = neighborhoodInput.value.trim();
-            
-            if (neighborhoodsData[val]) {
-                deliveryFee = neighborhoodsData[val].fee;
-                isValidNeighborhood = true;
-                matchedName = val;
-                if (neighborhoodStatus) {
-                    neighborhoodStatus.innerHTML = `<span style="color:#2e7d32; font-weight:600;"><i class="fas fa-check-circle"></i> Taxa de Entrega: R$ ${deliveryFee.toFixed(2)}</span>`;
-                }
-            } else {
-                if (neighborhoodStatus && val !== "") {
-                    neighborhoodStatus.innerHTML = '<span style="color:#ff5252; font-size: 0.75rem;"><i class="fas fa-exclamation-triangle"></i> Bairro não encontrado na lista oficial</span>';
-                } else if (neighborhoodStatus) {
-                    neighborhoodStatus.innerText = '';
-                }
-            }
-        } catch (e) {
-            console.error("Erro ao processar dados de bairros", e);
+    const neighborhoodSelect = document.getElementById('neighborhood');
+    if (neighborhoodSelect && neighborhoodSelect.value) {
+        const selected = neighborhoodSelect.options[neighborhoodSelect.selectedIndex];
+        if (selected && selected.value) {
+            deliveryFee = parseFloat(selected.dataset.fee || 0);
+            isValidNeighborhood = true;
+            if (neighborhoodStatus) neighborhoodStatus.innerText = '';
         }
     }
 
@@ -251,10 +233,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nameInput && savedName && !nameInput.value) nameInput.value = savedName;
     if (phoneInput && savedPhone && !phoneInput.value) phoneInput.value = savedPhone;
 
-    const neighborhoodInput = document.getElementById('neighborhood');
-    if (neighborhoodInput) {
+    // Neighborhood: pre-select and calculate
+    if (neighborhoodSelect) {
         if (savedNeighborhood) {
-            neighborhoodInput.value = savedNeighborhood;
+            neighborhoodSelect.value = savedNeighborhood;
+        } else if (neighborhoodSelect.options.length > 1) {
+            // Se não tem nada salvo, seleciona o primeiro bairro real para a taxa aparecer "automática"
+            for (let i = 0; i < neighborhoodSelect.options.length; i++) {
+                if (neighborhoodSelect.options[i].value !== "") {
+                    neighborhoodSelect.selectedIndex = i;
+                    localStorage.setItem('gordin_neighborhood', neighborhoodSelect.options[i].value);
+                    break;
+                }
+            }
         }
     }
 
@@ -262,9 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCart();
 
     // 5. Setup Listeners
-    if (neighborhoodInput) {
-        neighborhoodInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_neighborhood', neighborhoodInput.value);
+    if (neighborhoodSelect) {
+        neighborhoodSelect.addEventListener('change', () => {
+            localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
             renderCart();
         });
     }
@@ -306,28 +297,22 @@ function checkout() {
     const number = document.getElementById('number')?.value.trim();
     const complement = document.getElementById('complement')?.value.trim();
 
-    const neighborhoodInput = document.getElementById('neighborhood');
+    const neighborhoodSelect = document.getElementById('neighborhood');
     const customerName = document.getElementById('customer_name')?.value;
     const customerPhone = document.getElementById('customer_phone')?.value;
-    const neighborhoodsDataEl = document.getElementById('neighborhoods-data');
     
     let neighborhoodId = null;
     let neighborhoodName = null;
     let deliveryFee = 0;
     let found = false;
 
-    if (neighborhoodInput && neighborhoodInput.value && neighborhoodsDataEl) {
-        try {
-            const neighborhoodsData = JSON.parse(neighborhoodsDataEl.textContent);
-            const val = neighborhoodInput.value.trim();
-            if (neighborhoodsData[val]) {
-                neighborhoodId = neighborhoodsData[val].id;
-                neighborhoodName = val;
-                deliveryFee = neighborhoodsData[val].fee;
-                found = true;
-            }
-        } catch (e) {
-            console.error("Erro no checkout ao ler bairros", e);
+    if (neighborhoodSelect && neighborhoodSelect.value) {
+        const selected = neighborhoodSelect.options[neighborhoodSelect.selectedIndex];
+        if (selected && selected.value) {
+            neighborhoodId = selected.dataset.id;
+            neighborhoodName = selected.value;
+            deliveryFee = parseFloat(selected.dataset.fee || 0);
+            found = true;
         }
     }
 

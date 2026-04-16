@@ -28,22 +28,14 @@
 
             <div class="form-group" style="margin: 0;">
                 <label for="neighborhood">Bairro</label>
-                <input type="text" id="neighborhood" class="form-input" list="neighborhoods-list" placeholder="Digite seu bairro..." autocomplete="off">
-                <datalist id="neighborhoods-list">
+                <select id="neighborhood" class="form-input" style="cursor: pointer; appearance: auto;">
+                    <option value="" data-id="" data-fee="0">Selecione seu bairro...</option>
                     {% for n in neighborhoods %}
-                    <option value="{{ n.name }}" data-fee="{{ n.delivery_fee }}" data-id="{{ n.id }}">
+                    <option value="{{ n.name }}" data-id="{{ n.id }}" data-fee="{{ n.delivery_fee }}">{{ n.name }} — Taxa: R$ {{ "%.2f"|format(n.delivery_fee) }}</option>
                     {% endfor %}
-                </datalist>
+                </select>
                 <div id="neighborhood-status" style="font-size: 0.8rem; margin-top: 5px; min-height: 1em;"></div>
             </div>
-
-            <script id="neighborhoods-data" type="application/json">
-                {
-                    {% for n in neighborhoods %}
-                    "{{ n.name }}": {"fee": {{ n.delivery_fee }}, "id": {{ n.id }}}{% if not loop.last %},{% endif %}
-                    {% endfor %}
-                }
-            </script>
 
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
                 <div class="form-group" style="margin: 0;">
