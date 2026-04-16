@@ -163,44 +163,23 @@ function renderCart() {
     let isValidNeighborhood = false;
     let matchedName = "";
 
-    if (neighborhoodInput && datalist) {
-        let value = neighborhoodInput.value.trim().toLowerCase();
-        const options = datalist.options;
-        
-        // 1. Tentar match exato (ignora case)
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].value.toLowerCase() === value) {
-                deliveryFee = parseFloat(options[i].dataset.fee || 0);
-                isValidNeighborhood = true;
-                matchedName = options[i].value;
-                break;
-            }
+    const neighborhoodSelect = document.getElementById('neighborhood');
+    if (neighborhoodSelect && neighborhoodSelect.value) {
+        const selected = neighborhoodSelect.options[neighborhoodSelect.selectedIndex];
+        if (selected && selected.value) {
+            deliveryFee = parseFloat(selected.dataset.fee || 0);
+            isValidNeighborhood = true;
+            matchedName = selected.value;
+            if (neighborhoodStatus) neighborhoodStatus.innerText = '';
         }
+    }
 
-        // 2. Se não encontrou match exato, tentar match parcial ou sugerir
-        if (!isValidNeighborhood && value.length > 3) {
-            for (let i = 0; i < options.length; i++) {
-                const optName = options[i].value.toLowerCase();
-                // Verifica se começa igual ou se é plural/singular (Laranjeira vs Laranjeiras)
-                if (optName.startsWith(value) || value.startsWith(optName)) {
-                    // Sugere o bairro correto se a diferença for pequena
-                    if (Math.abs(optName.length - value.length) <= 2) {
-                        neighborhoodStatus.innerHTML = `Você quis dizer <strong>${options[i].value}</strong>? <button onclick="selectNeighborhood('${options[i].value}')" style="background: var(--secondary); border: none; padding: 2px 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin-left: 5px;">Sim</button>`;
-                        neighborhoodStatus.style.color = "var(--primary)";
-                        break;
-                    }
-                }
-            }
-        } else if (isValidNeighborhood) {
-            if (neighborhoodStatus) neighborhoodStatus.innerText = "";
-        }
-        
-        // Sempre habilitado para permitir que o usuário veja o que falta ao clicar (ou peça login)
-        if (checkoutBtn) {
-            checkoutBtn.disabled = false;
-            checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
-            checkoutBtn.style.opacity = "1";
-        }
+    // Checkoutbtn always enabled
+    const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
+    if (checkoutBtn) {
+        checkoutBtn.disabled = false;
+        checkoutBtn.innerHTML = 'Finalizar no WhatsApp <i class="fab fa-whatsapp"></i>';
+        checkoutBtn.style.opacity = '1';
     }
 
     const total = subtotal + deliveryFee;
@@ -262,9 +241,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedName && nameInput) nameInput.value = savedName;
     if (savedPhone && phoneInput) phoneInput.value = savedPhone;
 
+    const neighborhoodSelect = document.getElementById('neighborhood');
     if (savedNeighborhood && neighborhoodSelect) {
         neighborhoodSelect.value = savedNeighborhood;
         renderCart();
+    }
+
+    if (neighborhoodSelect) {
+        neighborhoodSelect.addEventListener('change', () => {
+            localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
+            renderCart();
+        });
     }
 
     if (streetInput) {
@@ -282,13 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (complementInput) {
         complementInput.addEventListener('input', () => {
             localStorage.setItem('gordin_complement', complementInput.value);
-        });
-    }
-
-    if (neighborhoodSelect) {
-        neighborhoodSelect.addEventListener('input', () => {
-            localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
-            renderCart();
         });
     }
 
@@ -325,8 +305,7 @@ function checkout() {
     const number = document.getElementById('number')?.value.trim();
     const complement = document.getElementById('complement')?.value.trim();
 
-    const neighborhoodInput = document.getElementById('neighborhood');
-    const datalist = document.getElementById('neighborhoods-list');
+    const neighborhoodSelect = document.getElementById('neighborhood');
     const customerName = document.getElementById('customer_name')?.value;
     const customerPhone = document.getElementById('customer_phone')?.value;
     
@@ -335,20 +314,16 @@ function checkout() {
     let deliveryFee = 0;
     let found = false;
 
-    if (neighborhoodInput && datalist) {
-        const value = neighborhoodInput.value.trim().toLowerCase();
-        const options = datalist.options;
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].value.toLowerCase() === value) {
-                neighborhoodId = options[i].dataset.id;
-                neighborhoodName = options[i].value; // Nome oficial
-                deliveryFee = parseFloat(options[i].dataset.fee || 0);
-                found = true;
-                break;
-            }
+    if (neighborhoodSelect && neighborhoodSelect.value) {
+        const selected = neighborhoodSelect.options[neighborhoodSelect.selectedIndex];
+        if (selected && selected.value) {
+            neighborhoodId = selected.dataset.id;
+            neighborhoodName = selected.value;
+            deliveryFee = parseFloat(selected.dataset.fee || 0);
+            found = true;
         }
     }
-    
+
     // Validação de campos obrigatórios
     if (!street || !number || !found) {
         alert('Por favor, preencha a Rua, o Número e selecione um bairro válido da lista.');
