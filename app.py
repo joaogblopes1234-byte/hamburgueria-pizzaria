@@ -199,12 +199,16 @@ def orders():
     guest_token = session.get('guest_token')
     
     if guest_name and guest_phone:
-        # Busca pedidos pelo nome, telefone e token do aparelho (privacidade)
-        query = Order.query.filter_by(customer_name=guest_name, customer_phone=guest_phone)
+        # Busca pedidos APENAS se o token do aparelho bater com o do pedido.
+        # Isso garante que ninguém com outro celular consiga ver os pedidos.
         if guest_token:
-            query = query.filter_by(guest_token=guest_token)
+            query = Order.query.filter_by(customer_name=guest_name, customer_phone=guest_phone, guest_token=guest_token)
+            user_orders = query.order_by(Order.date_ordered.desc()).all()
+        else:
+            # Sem token na sessão, bloqueamos o acesso aos pedidos recentes para segurança
+            query = Order.query.filter_by(customer_name=guest_name, customer_phone=guest_phone).filter(db.or_(Order.guest_token == None, Order.guest_token == ''))
+            user_orders = query.order_by(Order.date_ordered.desc()).all()
             
-        user_orders = query.order_by(Order.date_ordered.desc()).all()
         return render_template('orders.html', orders=user_orders, identified=True, guest_name=guest_name)
     
     # Not identified, show form

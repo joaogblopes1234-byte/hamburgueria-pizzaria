@@ -160,13 +160,24 @@ function renderCart() {
     let isValidNeighborhood = false;
 
     const neighborhoodSelect = document.getElementById('neighborhood');
-    if (neighborhoodSelect && neighborhoodSelect.value) {
-        const selected = neighborhoodSelect.options[neighborhoodSelect.selectedIndex];
-        if (selected && selected.value) {
-            deliveryFee = parseFloat(selected.dataset.fee || 0);
+    const datalist = document.getElementById('neighborhoods-list');
+    if (neighborhoodSelect && neighborhoodSelect.value && datalist) {
+        const selectedOption = Array.from(datalist.options).find(opt => opt.value === neighborhoodSelect.value);
+        if (selectedOption) {
+            deliveryFee = parseFloat(selectedOption.dataset.fee || 0);
             isValidNeighborhood = true;
-            if (neighborhoodStatus) neighborhoodStatus.innerText = '';
+            if (neighborhoodStatus) {
+                neighborhoodStatus.innerText = `Taxa de entrega: R$ ${deliveryFee.toFixed(2)}`;
+                neighborhoodStatus.style.color = 'var(--success)';
+            }
+        } else {
+            if (neighborhoodStatus) {
+                neighborhoodStatus.innerText = 'Por favor, selecione um bairro da lista.';
+                neighborhoodStatus.style.color = '#ff5252';
+            }
         }
+    } else {
+        if (neighborhoodStatus) neighborhoodStatus.innerText = '';
     }
 
     // Checkout button always enabled
@@ -237,15 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (neighborhoodSelect) {
         if (savedNeighborhood) {
             neighborhoodSelect.value = savedNeighborhood;
-        } else if (neighborhoodSelect.options.length > 1) {
-            // Se não tem nada salvo, seleciona o primeiro bairro real para a taxa aparecer "automática"
-            for (let i = 0; i < neighborhoodSelect.options.length; i++) {
-                if (neighborhoodSelect.options[i].value !== "") {
-                    neighborhoodSelect.selectedIndex = i;
-                    localStorage.setItem('gordin_neighborhood', neighborhoodSelect.options[i].value);
-                    break;
-                }
-            }
         }
     }
 
@@ -254,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. Setup Listeners
     if (neighborhoodSelect) {
-        neighborhoodSelect.addEventListener('change', () => {
+        neighborhoodSelect.addEventListener('input', () => {
             localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
             renderCart();
         });
@@ -306,12 +308,13 @@ function checkout() {
     let deliveryFee = 0;
     let found = false;
 
-    if (neighborhoodSelect && neighborhoodSelect.value) {
-        const selected = neighborhoodSelect.options[neighborhoodSelect.selectedIndex];
-        if (selected && selected.value) {
-            neighborhoodId = selected.dataset.id;
-            neighborhoodName = selected.value;
-            deliveryFee = parseFloat(selected.dataset.fee || 0);
+    const datalist = document.getElementById('neighborhoods-list');
+    if (neighborhoodSelect && neighborhoodSelect.value && datalist) {
+        const selectedOption = Array.from(datalist.options).find(opt => opt.value === neighborhoodSelect.value);
+        if (selectedOption) {
+            neighborhoodId = selectedOption.dataset.id;
+            neighborhoodName = selectedOption.value;
+            deliveryFee = parseFloat(selectedOption.dataset.fee || 0);
             found = true;
         }
     }
