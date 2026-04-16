@@ -371,13 +371,14 @@ function checkout() {
             }
             
             // Tenta pegar a mensagem de erro do JSON se existir
+            let errorMsg = 'SERVER_ERROR';
             try {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'SERVER_ERROR');
+                errorMsg = errorData.message || 'SERVER_ERROR';
             } catch (e) {
-                if (e.message === 'SESSION_EXPIRED') throw e;
-                throw new Error('SERVER_ERROR');
+                // Fallback
             }
+            throw new Error(errorMsg);
         }
         return response.json();
     }).then(data => {
@@ -463,7 +464,8 @@ function checkout() {
         } else if (error.message === 'SERVER_ERROR') {
             alert("Ocorreu um erro interno no servidor ao processar seu pedido. Por favor, tente novamente mais tarde ou chame no WhatsApp direto.");
         } else {
-            alert("Ocorreu um erro na conexão ou ao processar os dados. Verifique sua internet.");
+            // Mostra o erro exato retornado pelo servidor
+            alert(error.message);
         }
 
         if (checkoutBtn) {
