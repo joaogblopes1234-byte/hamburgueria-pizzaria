@@ -28,14 +28,22 @@
 
             <div class="form-group" style="margin: 0;">
                 <label for="neighborhood">Bairro</label>
-                <select id="neighborhood" class="form-input" style="cursor: pointer; appearance: auto;">
-                    <option value="" data-id="" data-fee="0">Selecione seu bairro...</option>
+                <input type="text" id="neighborhood" class="form-input" list="neighborhoods-list" placeholder="Digite seu bairro..." autocomplete="off">
+                <datalist id="neighborhoods-list">
                     {% for n in neighborhoods %}
-                    <option value="{{ n.name }}" data-id="{{ n.id }}" data-fee="{{ n.delivery_fee }}">{{ n.name }} — Taxa: R$ {{ "%.2f"|format(n.delivery_fee) }}</option>
+                    <option value="{{ n.name }}" data-fee="{{ n.delivery_fee }}" data-id="{{ n.id }}">
                     {% endfor %}
-                </select>
-                <small id="neighborhood-status" style="display: block; margin-top: 5px; color: #ff5252; font-size: 0.75rem; min-height: 1.2em;"></small>
+                </datalist>
+                <div id="neighborhood-status" style="font-size: 0.8rem; margin-top: 5px; min-height: 1em;"></div>
             </div>
+
+            <script id="neighborhoods-data" type="application/json">
+                {
+                    {% for n in neighborhoods %}
+                    "{{ n.name }}": {"fee": {{ n.delivery_fee }}, "id": {{ n.id }}}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                }
+            </script>
 
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
                 <div class="form-group" style="margin: 0;">
