@@ -234,8 +234,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (phoneInput && savedPhone && !phoneInput.value) phoneInput.value = savedPhone;
 
     // Neighborhood: pre-select and calculate
-    if (neighborhoodSelect && savedNeighborhood) {
-        neighborhoodSelect.value = savedNeighborhood;
+    if (neighborhoodSelect) {
+        if (savedNeighborhood) {
+            neighborhoodSelect.value = savedNeighborhood;
+        } else if (neighborhoodSelect.options.length > 1) {
+            // Se não tem nada salvo, seleciona o primeiro bairro real para a taxa aparecer "automática"
+            for (let i = 0; i < neighborhoodSelect.options.length; i++) {
+                if (neighborhoodSelect.options[i].value !== "") {
+                    neighborhoodSelect.selectedIndex = i;
+                    localStorage.setItem('gordin_neighborhood', neighborhoodSelect.options[i].value);
+                    break;
+                }
+            }
+        }
     }
 
     // 4. Initial Render (with totals if neighborhood was pre-filled)

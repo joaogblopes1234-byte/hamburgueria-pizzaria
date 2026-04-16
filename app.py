@@ -110,7 +110,7 @@ class OrderView(AdminModelView):
         'neighborhood': 'Bairro'
     }
     column_filters = ['status', 'date_ordered', 'total_price']
-    column_editable_list = ['status']
+    column_editable_list = ['status', 'delivery_fee', 'total_price']
     column_default_sort = ('date_ordered', True)
 
 admin = Admin(app, name='Painel de Gestão', theme=Bootstrap4Theme())
