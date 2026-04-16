@@ -205,24 +205,18 @@ function renderCart() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initialize UI counters
     updateCartCount();
-    renderCart();
-});
-
-// Garante que o contador de itens e a barra flutuante sejam reinicializados se o usuário usar o botão "Voltar"
-window.addEventListener('pageshow', (event) => {
-    updateCartCount();
-    renderCart();
-});
-
-document.addEventListener('DOMContentLoaded', () => {
+    
+    // 2. Identify Elements
     const streetInput = document.getElementById('street');
     const numberInput = document.getElementById('number');
     const complementInput = document.getElementById('complement');
     const nameInput = document.getElementById('customer_name');
     const phoneInput = document.getElementById('customer_phone');
+    const neighborhoodSelect = document.getElementById('neighborhood');
 
-    // Carregar dados salvos (LocalStorage agora para persistência total)
+    // 3. Load Saved Data
     const savedStreet = localStorage.getItem('gordin_street');
     const savedNumber = localStorage.getItem('gordin_number');
     const savedComplement = localStorage.getItem('gordin_complement');
@@ -230,18 +224,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedName = localStorage.getItem('gordin_guest_name');
     const savedPhone = localStorage.getItem('gordin_guest_phone');
 
-    if (savedStreet && streetInput) streetInput.value = savedStreet;
-    if (savedNumber && numberInput) numberInput.value = savedNumber;
-    if (savedComplement && complementInput) complementInput.value = savedComplement;
-    if (savedName && nameInput) nameInput.value = savedName;
-    if (savedPhone && phoneInput) phoneInput.value = savedPhone;
+    // Fill fields if they are empty (don't overwrite template values if template already has something)
+    if (streetInput && savedStreet) streetInput.value = savedStreet;
+    if (numberInput && savedNumber) numberInput.value = savedNumber;
+    if (complementInput && savedComplement) complementInput.value = savedComplement;
+    
+    // Name/Phone: use localStorage if template didn't provide anything (guest or empty login)
+    if (nameInput && savedName && !nameInput.value) nameInput.value = savedName;
+    if (phoneInput && savedPhone && !phoneInput.value) phoneInput.value = savedPhone;
 
-    const neighborhoodSelect = document.getElementById('neighborhood');
-    if (savedNeighborhood && neighborhoodSelect) {
+    // Neighborhood: pre-select and calculate
+    if (neighborhoodSelect && savedNeighborhood) {
         neighborhoodSelect.value = savedNeighborhood;
-        renderCart();
     }
 
+    // 4. Initial Render (with totals if neighborhood was pre-filled)
+    renderCart();
+
+    // 5. Setup Listeners
     if (neighborhoodSelect) {
         neighborhoodSelect.addEventListener('change', () => {
             localStorage.setItem('gordin_neighborhood', neighborhoodSelect.value);
@@ -250,33 +250,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (streetInput) {
-        streetInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_street', streetInput.value);
-        });
+        streetInput.addEventListener('input', () => localStorage.setItem('gordin_street', streetInput.value));
     }
-
     if (numberInput) {
-        numberInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_number', numberInput.value);
-        });
+        numberInput.addEventListener('input', () => localStorage.setItem('gordin_number', numberInput.value));
     }
-
     if (complementInput) {
-        complementInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_complement', complementInput.value);
-        });
+        complementInput.addEventListener('input', () => localStorage.setItem('gordin_complement', complementInput.value));
     }
-
     if (nameInput) {
-        nameInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_guest_name', nameInput.value);
-        });
+        nameInput.addEventListener('input', () => localStorage.setItem('gordin_guest_name', nameInput.value));
     }
-
     if (phoneInput) {
-        phoneInput.addEventListener('input', () => {
-            localStorage.setItem('gordin_guest_phone', phoneInput.value);
-        });
+        phoneInput.addEventListener('input', () => localStorage.setItem('gordin_guest_phone', phoneInput.value));
     }
 });
 
