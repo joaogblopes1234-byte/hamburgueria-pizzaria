@@ -19,7 +19,7 @@
         <div class="info-content">
             <h2>Gordin Lanches</h2>
             <div class="info-bar">
-                <span class="status-open">Aberto agora</span>
+                <span id="store-status">...</span>
                 <span>•</span>
                 <span><i class="fas fa-clock"></i> 18:00 às 23:00</span>
                 <span>•</span>
@@ -206,6 +206,46 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+    // ── Status Dinâmico da Loja ────────────────────────────────────────────
+    (function() {
+        // Horário de funcionamento por dia (0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sáb)
+        const schedule = {
+            0: { open: 18, close: 23 }, // Domingo
+            1: null,                     // Segunda — Fechado
+            2: { open: 18, close: 23 }, // Terça
+            3: null,                     // Quarta — Fechado
+            4: { open: 18, close: 23 }, // Quinta
+            5: { open: 18, close: 23 }, // Sexta
+            6: { open: 18, close: 23 }, // Sábado
+        };
+
+        // Horário de Brasília (UTC-3)
+        const now = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+        const day = now.getDay();
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        const timeInMinutes = hour * 60 + minute;
+
+        const el = document.getElementById('store-status');
+        if (!el) return;
+
+        const todaySchedule = schedule[day];
+        if (!todaySchedule) {
+            el.innerHTML = '<span style="color:#e63946; font-weight:700;"><i class="fas fa-times-circle"></i> Fechado hoje</span>';
+        } else {
+            const openMinutes = todaySchedule.open * 60;
+            const closeMinutes = todaySchedule.close * 60;
+            if (timeInMinutes >= openMinutes && timeInMinutes < closeMinutes) {
+                el.innerHTML = '<span style="color:#2e7d32; font-weight:700;"><i class="fas fa-circle" style="font-size:0.6rem;"></i> Aberto agora</span>';
+            } else if (timeInMinutes < openMinutes) {
+                el.innerHTML = '<span style="color:#e67e22; font-weight:700;"><i class="fas fa-clock"></i> Abre às 18:00</span>';
+            } else {
+                el.innerHTML = '<span style="color:#e63946; font-weight:700;"><i class="fas fa-moon"></i> Fechado por hoje</span>';
+            }
+        }
+    })();
+</script>
 <script>
     function searchProducts() {
         const query = document.getElementById('product-search').value.toLowerCase();
