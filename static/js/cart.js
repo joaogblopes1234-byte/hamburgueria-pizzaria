@@ -154,12 +154,10 @@ function renderCart() {
 
     // Calculate Totals
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
     const neighborhoodStatus = document.getElementById('neighborhood-status');
     
     let deliveryFee = 0;
     let isValidNeighborhood = false;
-    let matchedName = "";
 
     const neighborhoodSelect = document.getElementById('neighborhood');
     if (neighborhoodSelect && neighborhoodSelect.value) {
@@ -167,12 +165,11 @@ function renderCart() {
         if (selected && selected.value) {
             deliveryFee = parseFloat(selected.dataset.fee || 0);
             isValidNeighborhood = true;
-            matchedName = selected.value;
             if (neighborhoodStatus) neighborhoodStatus.innerText = '';
         }
     }
 
-    // Checkoutbtn always enabled
+    // Checkout button always enabled
     const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
     if (checkoutBtn) {
         checkoutBtn.disabled = false;
