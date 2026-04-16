@@ -3,7 +3,7 @@ from flask import Flask, render_template, redirect, url_for, request, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Category, Product, Neighborhood, Order, OrderItem
+from models import db, User, Category, Product, Neighborhood, Order, OrderItem, get_brazil_time
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'gordin_lanches_chave_super_secreta_2026')
@@ -292,6 +292,7 @@ def api_checkout():
             final_address += f" | NOTAS: {', '.join(observations)}"
 
         new_order = Order(
+            date_ordered=get_brazil_time(),
             user_id=current_user.id if current_user.is_authenticated else None,
             customer_name=customer_name or (current_user.username if current_user.is_authenticated else "Visitante"),
             customer_phone=customer_phone or "",
